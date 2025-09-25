@@ -1,0 +1,17 @@
+Checks: >
+  clang-analyzer-*,
+    bugprone-*,
+    performance-*,
+    readability-*,
+    portability-*,
+    misc-*,
+    -clang-analyzer-cplusplus*,
+    -clang-analyzer-osx*,
+    -clang-analyzer-valist*,
+    -clang-analyzer-optin.cplusplus.VirtualCall,
+    -clang-diagnostic-bitfield-constant-conversion
+
+  WarningsAsErrors: ''
+  HeaderFilterRegex: 'Szklarnia_new_software/source/.*'
+  AnalyzeTemporaryDtors: false
+  FormatStyle: none

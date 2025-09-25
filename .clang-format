@@ -1,0 +1,42 @@
+BasedOnStyle: Microsoft
+ColumnLimit: 120
+IndentWidth: 4
+ContinuationIndentWidth: 4
+
+AlignConsecutiveDeclarations: Consecutive
+AlignConsecutiveAssignments: Consecutive
+AlignConsecutiveBitFields: Consecutive
+AlignConsecutiveMacros: AcrossEmptyLinesAndComments
+AlignTrailingComments: true
+PointerAlignment: Right
+
+AllowArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortFunctionsOnASingleLine: Empty
+
+SortIncludes: true
+BinPackArguments: false
+BinPackParameters: false
+IndentCaseBlocks: false
+IndentPPDirectives: BeforeHash
+PenaltyReturnTypeOnItsOwnLine: 60
+
+BraceWrapping:
+  AfterCaseLabel: false
+  AfterClass: false
+  AfterNamespace: true
+  AfterStruct: true
+  BeforeCatch: true
+  BeforeElse: true
+  BeforeLambdaBody: false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  AfterMacro: true
+
+BreakAfterReturnType: Automatic
+# BreakBeforeBraces: Attach
+IndentStatements: false
+IndentWrappedFunctionNames: false
+SpaceBeforeParens: false
+SpacesInParentheses: false
+Cpp11BracedListStyle: true

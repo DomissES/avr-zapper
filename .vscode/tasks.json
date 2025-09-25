@@ -1,0 +1,49 @@
+{
+    // Place your tasks here
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Upload HEX to ATmega64",
+            "type": "shell",
+            "command": "avrdude",
+            "args": [
+                "-c", "avrisp2",           // AVR ISP 2 programmer
+                "-p", "m64a",              // ATmega64 device
+                "-P", "usb",               // USB port
+                "-B", ".4",                // Bit clock period
+                "-U", "flash:w:${workspaceFolder}/cmake/build/Debug/Szklarnia_new.hex:i" // hex file
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": "Increment Flash Count",
+        },
+        {
+            "label": "Increment Flash Count",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-P",
+                "${workspaceFolder}/cmake/increment_flash_count.cmake"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Doorstop-edit",
+            "detail": "Activate venv and run doorstop-edit",
+            "type": "shell",
+            "command": "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process; ${workspaceFolder}/../python_venv/Scripts/Activate.ps1; doorstop-edit",
+            "options": {
+                "cwd": "${workspaceFolder}/../Requirements",
+                "shell": {
+                    "executable": "powershell.exe",
+                    "args": [
+                        "-NoProfile",
+                        "-Command"
+                    ]
+                }
+            }
+        }
+    ]
+}

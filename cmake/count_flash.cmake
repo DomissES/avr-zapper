@@ -1,0 +1,11 @@
+set(FLASH_COUNT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../flash_count.txt")
+
+if(EXISTS "${FLASH_COUNT_FILE}")
+    file(READ "${FLASH_COUNT_FILE}" FLASH_COUNT)
+    string(STRIP "${FLASH_COUNT}" FLASH_COUNT)
+else()
+    set(FLASH_COUNT "0")
+endif()
+
+math(EXPR FLASH_COUNT_INC "${FLASH_COUNT} + 1")
+file(WRITE "${FLASH_COUNT_FILE}" "${FLASH_COUNT_INC}")
