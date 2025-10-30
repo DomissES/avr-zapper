@@ -14,6 +14,7 @@
 #include "uart_hal.h"
 
 #include "global_defines.h"
+#include "system_settings.h"
 
 // Target specific includes
 #include <avr/io.h>
@@ -48,11 +49,11 @@ static void Uart_privConfigBaud()
 #define BAUD UART_BAUDRATE
 #include "util/setbaud.h"
 
-    UBRR0H = UBRRH_VALUE;
-    UBRR0L = UBRRL_VALUE;
+    UBRRH = UBRRH_VALUE;
+    UBRRL = UBRRL_VALUE;
 
 #if USE_2X
-    UCSR0A |= (1 << U2X0);
+    UCSRA |= (1 << U2X);
 #else
     UCSR0A &= ~(1 << U2X0);
 #endif // USE_2X
@@ -72,11 +73,11 @@ static void Uart_privConfigBaud()
  */
 void Uart_InitUart()
 {
-    privUart_ConfigBaud();
+    Uart_privConfigBaud();
     // set uart to 8N1
-    UCSR0C |= _BV(UCSZ00) | _BV(UCSZ01);
+    UCSRC |= _BV(UCSZ0) | _BV(UCSZ1);
     // enable receive and transmit
-    UCSR0B |= _BV(RXEN0) | _BV(TXEN0);
+    UCSRB |= _BV(RXEN) | _BV(TXEN);
 }
 
 /**
@@ -106,9 +107,9 @@ void Uart_SendString(const char *cString, uint8_t len)
  */
 void Uart_SendByte(uint8_t byte)
 {
-    while((UCSR0A & _BV(UDRE0)) == 0)
+    while((UCSRA & _BV(UDRE)) == 0)
         ;
-    UDR0 = byte;
+    UDR = byte;
 }
 
 /**
@@ -121,7 +122,7 @@ void Uart_SendByte(uint8_t byte)
  */
 uint8_t Uart_ReceiveByte()
 {
-    while((UCSR0A & _BV(RXC0)) == 0)
+    while((UCSRA & _BV(RXC)) == 0)
         ;
-    return UDR0;
+    return UDR;
 }

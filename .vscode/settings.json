@@ -20,6 +20,16 @@
         "pgmspace.h": "c",
         "atomic.h": "c"
     },
-    "cmake.sourceDirectory": "D:/Projekty/_Current/Szklarnia/Szklarnia_new/Szklarnia_new_software"
+    "cmake.sourceDirectory": "${workspaceFolder}",
+//     "doxdocgen.file.fileTemplate": "/** \
+//  * @file {file} \
+//  * @addtogroup Level_ \
+//  *  \
+//  * @brief {brief} \
+//  *  \
+//  *  \
+//  * @author {author} \
+//  * @date {date} \
+//  */"
 
 }
