@@ -4,7 +4,7 @@
             "name": "AVR",
             "intelliSenseMode": "windows-gcc-x64",
             "defines": [
-                "__AVR_ATmega64A__",
+                "__AVR_ATmega8A__",
                 "F_CPU=16000000UL",
                 // specific keywords
                 "__memx=/**/"
