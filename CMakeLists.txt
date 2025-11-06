@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.28)
 ##########------------------------------------------------------##########
 # set(PROG_TYPE avrdude)
 set(MCU   atmega8a)
-set(F_CPU 16000000)
+set(F_CPU 8000000)
 #set(BAUD  9600)
 
 # Include toolchain

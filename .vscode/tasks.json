@@ -8,24 +8,23 @@
             "command": "avrdude",
             "args": [
                 "-c", "avrisp2",           // AVR ISP 2 programmer
-                "-p", "m64a",              // ATmega64 device
+                "-p", "m8",              // ATmega8 device
                 "-P", "usb",               // USB port
-                "-B", ".4",                // Bit clock period
-                "-U", "flash:w:${workspaceFolder}/cmake/build/Debug/Szklarnia_new.hex:i" // hex file
+                "-B", "1.6",                // Bit clock period
+                "-U", "flash:w:${workspaceFolder}/cmake/build/Debug/Zapper.hex:i" // hex file
             ],
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
-            "dependsOn": "Increment Flash Count",
+            "dependsOn": "Increment Flash Number",
         },
         {
-            "label": "Increment Flash Count",
+            "label": "Increment Flash Number",
             "type": "shell",
-            "command": "cmake",
+            "command": "python.exe",
             "args": [
-                "-P",
-                "${workspaceFolder}/cmake/increment_flash_count.cmake"
+                "${workspaceFolder}/tools/increase_flashing_number.py"
             ],
             "problemMatcher": []
         },
@@ -44,6 +43,9 @@
                     ]
                 }
             }
+        },
+        {
+            "label": "Kanban"
         }
     ]
 }

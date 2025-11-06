@@ -18,9 +18,15 @@
         "delay.h": "c",
         "app_settings.h": "c",
         "pgmspace.h": "c",
-        "atomic.h": "c"
+        "atomic.h": "c",
+        "stdio.h": "c",
+        "setbaud.h": "c"
     },
     "cmake.sourceDirectory": "${workspaceFolder}",
+    "C_Cpp.codeAnalysis.clangTidy.enabled": true,
+    "C_Cpp.codeAnalysis.clangTidy.args": [],
+    "C_Cpp.codeAnalysis.clangTidy.useBuildPath": true
+    
 //     "doxdocgen.file.fileTemplate": "/** \
 //  * @file {file} \
 //  * @addtogroup Level_ \

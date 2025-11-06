@@ -24,17 +24,17 @@ function(get_version_from_git)
 
     if(NOT GIT_RESULT EQUAL 0)
         message(WARNING "Failed to get git tag")
-        return()
     endif()
 
     # Since getting regex in CMake is tricky (doesn't work for git hash) use function below
-
     execute_process(
         COMMAND ${GIT_EXECUTABLE} rev-parse --short=7 HEAD
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         OUTPUT_VARIABLE GIT_COMMIT_SHORT_HASH
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
+
+    set(GIT_COMMIT_SHORT_HASH "${GIT_COMMIT_SHORT_HASH}" PARENT_SCOPE)
 
     # Get version numbers from tag
     string(REGEX MATCH "[0-9]+\.[0-9]+\.[0-9]+" CLEAN_TAG "${GIT_TAG}")
@@ -84,13 +84,25 @@ function(put_version_into_header)
         option(ENABLE_BUILD_NUMBER "Enable including build_version.cmake" ON)
 
         if(ENABLE_BUILD_NUMBER)
-            include("${CMAKE_SOURCE_DIR}/cmake/build_version.cmake")
-            set(BUILD_NUMBER ${BUILD_VERSION_INC})
-            set(FLASH_COUNT ${FLASH_COUNT})
+        include("${CMAKE_SOURCE_DIR}/cmake/build_version.cmake")
+            add_custom_command(
+                TARGET ${PROJECT_NAME}
+                POST_BUILD
+                COMMAND python.exe tools/increase_build_number.py
+                WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                DEPENDS hex
+            )
         else()
             set(BUILD_NUMBER 0)
-            set(FLASH_COUNT 0)
+            set(FLASH_NUMBER 0)
         endif()
+
+        add_custom_command(
+            TARGET ${PROJECT_NAME}
+            POST_BUILD
+            COMMAND echo "Build number: ${BUILD_NUMBER}"
+            COMMAND echo "Flash number: ${FLASH_NUMBER}"
+        )
 
         # Prepare file for version number and build number
         configure_file(

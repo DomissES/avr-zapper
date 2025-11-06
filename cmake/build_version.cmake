@@ -1,29 +1,27 @@
-set(BUILD_VERSION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../build_version.txt")
-set(FLASH_COUNT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../flash_count.txt")
+set(BUILD_VERSION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/build_number.txt")
+set(FLASH_NUMBER_FILE "${CMAKE_CURRENT_SOURCE_DIR}/flashing_number.txt")
 set(BUILD_HEADER_FILE "${CMAKE_CURRENT_BINARY_DIR}/utils/build_version.h")
 
+# ------ BUILD COUNT LOGIC ------
 # Read current build version
 if(EXISTS "${BUILD_VERSION_FILE}")
-    file(READ "${BUILD_VERSION_FILE}" BUILD_VERSION)
-    string(STRIP "${BUILD_VERSION}" BUILD_VERSION)
+    file(READ "${BUILD_VERSION_FILE}" BUILD_NUMBER)
+    string(STRIP "${BUILD_NUMBER}" BUILD_NUMBER)
 else()
-    set(BUILD_VERSION "0")
+    set(BUILD_NUMBER "0")
 endif()
 
-# Increment build version
-math(EXPR BUILD_VERSION_INC "${BUILD_VERSION} + 1")
-
-# Write new build version back to file
-file(WRITE "${BUILD_VERSION_FILE}" "${BUILD_VERSION_INC}")
-
-# --- FLASH COUNT LOGIC ---
+# ------ FLASH COUNT LOGIC ------
 # Read current flash count
-if(EXISTS "${FLASH_COUNT_FILE}")
-    file(READ "${FLASH_COUNT_FILE}" FLASH_COUNT)
-    string(STRIP "${FLASH_COUNT}" FLASH_COUNT)
+if(EXISTS "${FLASH_NUMBER_FILE}")
+    file(READ "${FLASH_NUMBER_FILE}" FLASH_NUMBER)
+    string(STRIP "${FLASH_NUMBER}" FLASH_NUMBER)
 else()
-    set(FLASH_COUNT "0")
+    set(FLASH_NUMBER "0")
 endif()
 
 # Optionally, expose the header path as a variable
 set(BUILD_VERSION_HEADER "${BUILD_HEADER_FILE}" PARENT_SCOPE)
+
+set(BUILD_NUMBER "${BUILD_NUMBER}" PARENT_SCOPE)
+set(FLASH_NUMBER "${FLASH_NUMBER}" PARENT_SCOPE)

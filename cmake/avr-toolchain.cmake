@@ -10,7 +10,8 @@ set(CMAKE_ASM_COMPILER   "${TOOLCHAIN_DIR}/bin/avr-gcc.exe")
 set(CMAKE_C_COMPILER   "${TOOLCHAIN_DIR}/bin/avr-gcc.exe")
 # set(CMAKE_C_LINK_EXECUTABLE   "${TOOLCHAIN_DIR}/bin/avr-ld.exe")
 set(CMAKE_CXX_COMPILER "${TOOLCHAIN_DIR}/bin/avr-g++.exe")
-
+# force include directories as system (for proper clang-tidy analysis)
+include_directories(SYSTEM "${TOOLCHAIN_DIR}/bin/lib/gcc/avr/7.3.0/include")
 # program names
 set(AVRCPP   avr-g++)
 set(AVRC     avr-gcc)
@@ -48,7 +49,7 @@ add_compile_options(
     "$<$<COMPILE_LANGUAGE:ASM>:-Wa,-gstabs>"
     "$<$<COMPILE_LANGUAGE:ASM>:-B ${SPECS_PATH}>"
 
-    $<$<CONFIG:DEBUG>:-O0>
+    $<$<CONFIG:DEBUG>:-O1>
     $<$<CONFIG:DEBUG>:-g3>
     $<$<CONFIG:DEBUG>:-ggdb>
     $<$<CONFIG:DEBUG>:-gdwarf>
