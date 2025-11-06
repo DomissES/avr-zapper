@@ -51,11 +51,11 @@ static void Uart_privConfigBaud()
 
     UBRRH = UBRRH_VALUE;
     UBRRL = UBRRL_VALUE;
-
+    
 #if USE_2X
     UCSRA |= (1 << U2X);
 #else
-    UCSR0A &= ~(1 << U2X0);
+    UCSRA &= ~(1 << U2X);
 #endif // USE_2X
 
 #undef BAUD
@@ -75,7 +75,7 @@ void Uart_InitUart()
 {
     Uart_privConfigBaud();
     // set uart to 8N1
-    UCSRC |= _BV(UCSZ0) | _BV(UCSZ1);
+    UCSRC |= _BV(URSEL) | _BV(UCSZ0) | _BV(UCSZ1);
     // enable receive and transmit
     UCSRB |= _BV(RXEN) | _BV(TXEN);
 }
