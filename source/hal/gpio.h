@@ -56,16 +56,16 @@
 #define GPIO_OUT_DC_DC_DISABLE()  CLR(PORT, DC_DC_KEY)
 
 // OUT, LED_A
-#define GPIO_OUT_LED_A_ENABLE()   CLR(PORT, LED_A_KEY)
-#define GPIO_OUT_LED_A_DISABLE()  SET(PORT, LED_A_KEY)
+#define GPIO_OUT_LED_A_ENABLE()   CLR(PORT, LED_A)
+#define GPIO_OUT_LED_A_DISABLE()  SET(PORT, LED_A)
 
 // OUT, LED_B
-#define GPIO_OUT_LED_B_ENABLE()   CLR(PORT, LED_B_KEY)
-#define GPIO_OUT_LED_B_DISABLE()  SET(PORT, LED_B_KEY)
+#define GPIO_OUT_LED_B_ENABLE()   CLR(PORT, LED_B)
+#define GPIO_OUT_LED_B_DISABLE()  SET(PORT, LED_B)
 
 // OUT, LED_C
-#define GPIO_OUT_LED_C_ENABLE()   CLR(PORT, LED_C_KEY)
-#define GPIO_OUT_LED_C_DISABLE()  SET(PORT, LED_C_KEY)
+#define GPIO_OUT_LED_C_ENABLE()   CLR(PORT, LED_C)
+#define GPIO_OUT_LED_C_DISABLE()  SET(PORT, LED_C)
 
 // PORT C
 
@@ -122,5 +122,11 @@
  * @param[out] None
  */
 void Gpio_InitAll();
+
+/**
+ * @brief Function which enables sequentally all leds to check if they are all working
+ * 
+ */
+void Gpio_TestAll();
 
 #endif // GPIO_H_
