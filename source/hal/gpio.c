@@ -81,7 +81,7 @@ static void Gpio_privDisableLedAll()
     PORTC |= 0x3C;
     PORTD |= 0xF0;
 
-    PORTB &= ~(0x03);
+    PORTB &= ~(0x05);
 }
 
 static void Gpio_privEnableSegmentLEDs()
