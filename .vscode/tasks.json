@@ -1,0 +1,51 @@
+{
+    // Place your tasks here
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Upload HEX to ATmega64",
+            "type": "shell",
+            "command": "avrdude",
+            "args": [
+                "-c", "avrisp2",           // AVR ISP 2 programmer
+                "-p", "m8",              // ATmega8 device
+                "-P", "usb",               // USB port
+                "-B", "1.6",                // Bit clock period
+                "-U", "flash:w:${workspaceFolder}/cmake/build/Debug/Zapper.hex:i" // hex file
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": "Increment Flash Number",
+        },
+        {
+            "label": "Increment Flash Number",
+            "type": "shell",
+            "command": "python.exe",
+            "args": [
+                "${workspaceFolder}/tools/increase_flashing_number.py"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Doorstop-edit",
+            "detail": "Activate venv and run doorstop-edit",
+            "type": "shell",
+            "command": "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process; ${workspaceFolder}/../python_venv/Scripts/Activate.ps1; doorstop-edit",
+            "options": {
+                "cwd": "${workspaceFolder}/../Requirements",
+                "shell": {
+                    "executable": "powershell.exe",
+                    "args": [
+                        "-NoProfile",
+                        "-Command"
+                    ]
+                }
+            }
+        },
+        {
+            "label": "Kanban"
+        }
+    ]
+}

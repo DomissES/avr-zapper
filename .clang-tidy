@@ -1,0 +1,42 @@
+Checks: >
+  clang-analyzer-*,
+  bugprone-*,
+  performance-*,
+  readability-*,
+  portability-*,
+  misc-*,
+  -clang-analyzer-cplusplus*,
+  -clang-analyzer-osx*,
+  -clang-analyzer-valist*,
+  -clang-analyzer-security.insecureAPI.*,
+  -clang-analyzer-core.FixedAddressDereference,
+  -bugprone-sizeof-expression,
+  -readability-function-cognitive-complexity,
+  -misc-unused-parameters,
+  -readability-identifier-length,
+  -bugprone-easily-swappable-parameters
+
+WarningsAsErrors: ''
+HeaderFilterRegex: 'Zapper_Software/source/.*'
+ExcludeHeaderFilterRegex: 'Zapper_Software/cmake/CMakeFiles/.**'
+FormatStyle: none
+
+CheckOptions:
+  - key:    readability-function-size.LineThreshold
+    value:  '100'
+  - key:    readability-function-size.StatementThreshold
+    value:  '50'
+  - key:    readability-function-size.BranchThreshold
+    value:  '10'
+  - key:    bugprone-argument-comment.StrictMode
+    value:  '1'
+  - key:    readability-implicit-bool-conversion.AllowIntegerConditions
+    value:  '1'
+  - key:    readability-implicit-bool-conversion.AllowPointerConditions
+    value:  '1'
+  - key:    readability-magic-numbers.IgnoredFloatingPointValues
+    value:  '0.0;1.0;100.0;'
+  - key:    readability-magic-numbers.IgnoredIntegerValues
+    value:  '0;1;2;3;4;5;6;7;8;9;'
+  # - key:    bugprone-narrowing-conversions.IgnoreConversionFromTypes
+  #   value:  'int'

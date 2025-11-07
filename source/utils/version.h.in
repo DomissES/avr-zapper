@@ -1,0 +1,31 @@
+/**
+ * @file version.h
+ * @addtogroup Level_0_Utilities
+ *
+ * @brief Header file which contains:
+ * - version info from Cmake and Git,
+ * - build number and flash number
+ * - build date
+ *
+ * @author domis
+ * @date 25.09.2025
+ */
+
+#ifndef VERSION_H
+#define VERSION_H
+
+// Version info from CMake
+#define VERSION_MAJOR  @PROJECT_VERSION_MAJOR@
+#define VERSION_MINOR  @PROJECT_VERSION_MINOR@
+#define VERSION_PATCH  @PROJECT_VERSION_PATCH@
+
+#define VERSION_COMMIT "@GIT_COMMIT_SHORT_HASH@"
+
+// Build number from CMake
+#define BUILD_NUMBER   @BUILD_NUMBER@
+#define FLASH_NUMBER   @FLASH_NUMBER@
+
+// Build date from compiler
+#define BUILD_DATE     __DATE__
+
+#endif // VERSION_H

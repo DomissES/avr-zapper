@@ -1,0 +1,42 @@
+{
+    "files.associations": {
+        "gpio.h": "c",
+        "stdint.h": "c",
+        "projectdefs.h": "c",
+        "timers.h": "c",
+        "my_assert.h": "c",
+        "project_settings.h": "c",
+        "heater_driver.h": "c",
+        "project_defines.h": "c",
+        "systimer.h": "c",
+        "pinconfig.h": "c",
+        "interrupt.h": "c",
+        "logging.h": "c",
+        "stdlib.h": "c",
+        "driver_settings.h": "c",
+        "rtc.h": "c",
+        "delay.h": "c",
+        "app_settings.h": "c",
+        "pgmspace.h": "c",
+        "atomic.h": "c",
+        "stdio.h": "c",
+        "setbaud.h": "c",
+        "timer_hal.h": "c"
+    },
+    "cmake.sourceDirectory": "${workspaceFolder}",
+    "C_Cpp.codeAnalysis.clangTidy.enabled": true,
+    "C_Cpp.codeAnalysis.clangTidy.args": [],
+    "C_Cpp.codeAnalysis.clangTidy.useBuildPath": true
+    
+//     "doxdocgen.file.fileTemplate": "/** \
+//  * @file {file} \
+//  * @addtogroup Level_ \
+//  *  \
+//  * @brief {brief} \
+//  *  \
+//  *  \
+//  * @author {author} \
+//  * @date {date} \
+//  */"
+
+}
