@@ -107,7 +107,7 @@ static void Gpio_privEnableSegmentLEDs()
 
 /**
  * @brief Function which enables sequentally all leds to check if they are all working
- * 
+ *
  */
 void Gpio_TestAll()
 {
@@ -130,9 +130,8 @@ void Gpio_TestAll()
     // Toggle to right segment
     Gpio_privDisableLedAll();
     GPIO_SEG_RIGHT_ENABLE();
-    
+
     Gpio_privEnableSegmentLEDs();
 
     Gpio_privDisableLedAll();
-
 }

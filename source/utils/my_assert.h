@@ -16,7 +16,6 @@
 #ifndef MY_ASSERT_H_
 #define MY_ASSERT_H_
 
-
 #include "stdint.h"
 
 #ifdef USE_ASSERT

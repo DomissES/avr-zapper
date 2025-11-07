@@ -16,8 +16,8 @@
 
 // Target specific includes
 #include <stdarg.h>
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 
 /**
  * @brief Sends a formatted string over UART.

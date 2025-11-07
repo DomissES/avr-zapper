@@ -36,8 +36,8 @@
     {                                                                                                                  \
         pTimer->SFR.tccrA = &TCCR1A;                                                                                   \
         pTimer->SFR.tccrB = &TCCR1B;                                                                                   \
-        pTimer->SFR.ocrA   = &OCR1A;                                                                                    \
-        pTimer->SFR.ocrB   = &OCR1B;                                                                                    \
+        pTimer->SFR.ocrA  = &OCR1A;                                                                                    \
+        pTimer->SFR.ocrB  = &OCR1B;                                                                                    \
         pTimer->SFR.tcnt  = &TCNT1;                                                                                    \
     }
 
@@ -69,7 +69,6 @@
 //===================================================================================================================//
 // Timer interrupts definitions                                                                                      //
 //===================================================================================================================//
-
 
 //===================================================================================================================//
 // Private definitions                                                                                               //
@@ -126,7 +125,6 @@ void TimerHAL_InitTimer_2(Timer_2_HAL_t *pTimer)
 
     // Set OCR to defult value
     *pTimer->SFR.ocr = 0x80;
-
 }
 
 /**

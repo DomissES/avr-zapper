@@ -84,21 +84,21 @@ extern Timer_2_HAL_t hTimer2;
 /**
  * @brief Enables OCR output for Timer 1
  * The OCR is toggling each time of timer overflow
- * 
+ *
  */
-#define TIMER_HAL_ENABLE_OCR1() TCCR1A |= _BV(COM1B1)
+#define TIMER_HAL_ENABLE_OCR1()  TCCR1A |= _BV(COM1B1)
 
 /**
  * @brief Disables OCR output for Timer 1
  * The OCR is toggling each time of timer overflow
- * 
+ *
  */
 #define TIMER_HAL_DISABLE_OCR1() TCCR1A &= ~_BV(COM1A0)
 
 /**
  * @brief Enables OCR output for Timer 2
  */
-#define TIMER_HAL_ENABLE_OCR2() TCCR2 |= _BV(COM20)
+#define TIMER_HAL_ENABLE_OCR2()  TCCR2 |= _BV(COM20)
 
 /**
  * @brief Disables OCR output for Timer 2
