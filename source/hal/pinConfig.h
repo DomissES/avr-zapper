@@ -17,9 +17,9 @@
 
 // PORT B
 #define SEG_LEFT   B, 0 // OUT
-#define OUT_KEY    B, 1 // OUT
-#define SEG_RIGHT  B, 2 // OUT
-#define DC_DC_KEY  B, 3 // OUT
+#define SEG_RIGHT  B, 1 // OUT
+#define DC_DC_KEY  B, 2 // OUT
+#define OUT_KEY    B, 3 // OUT
 // #define MISO       B, 4
 #define LED_A      B, 5 // OUT
 #define LED_B      B, 6 // OUT

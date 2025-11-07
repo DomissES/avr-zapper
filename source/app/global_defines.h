@@ -26,5 +26,5 @@
 #define PSTR(s) (const __memx char *)(s)
 
 // Interrupt related
-#define ENABLE_GLOBAL_INTERRUPTS  sei()
-#define DISABLE_GLOBAL_INTERRUPTS cli()
+#define ENABLE_GLOBAL_INTERRUPTS()  sei()
+#define DISABLE_GLOBAL_INTERRUPTS() cli()

@@ -20,7 +20,8 @@
         "pgmspace.h": "c",
         "atomic.h": "c",
         "stdio.h": "c",
-        "setbaud.h": "c"
+        "setbaud.h": "c",
+        "timer_hal.h": "c"
     },
     "cmake.sourceDirectory": "${workspaceFolder}",
     "C_Cpp.codeAnalysis.clangTidy.enabled": true,
