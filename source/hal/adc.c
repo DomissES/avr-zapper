@@ -45,14 +45,20 @@
 #define ADC_MAX_RESOLUTION 1023  // mV
 
 // clang-format off
-#define ADC_INIT_STRUCT()                                                                                             \
- {                                                                                                                    \
+#define ADC_HAL_INIT_STRUCT()                                                                                         \
+{                                                                                                                     \
     .channel[0] = &adc_DcdcChannel,                                                                                   \
     .channel[1] = &adc_ControlChannel,                                                                                \
-    .status = ADC_STATUS_UNITIALIZED,                                                                                 \
+    .status = eADC_STATUS_UNITIALIZED,                                                                                \
     .activeChannel = eADC_CHANNEL_DC_DC_FB,                                                                           \
-    .checkInputVoltage = true                                                                                         \
-} // clang-format on
+} 
+
+#define ADC_CHANNEL_INIT_STRUCT()                                                                                     \
+{                                                                                                                     \
+    .channel = eADC_CHANNEL_NONE,                                                                                     \
+    .lastMeasurement = 0                                                                                              \
+}
+// clang-format on
 
 //===================================================================================================================//
 // Private definitions                                                                                               //
@@ -63,17 +69,16 @@ typedef struct
     Adc_Channel_t *channel[ADC_CHANNELS];
     Adc_Status_e   status;
     Adc_Instance_e activeChannel;
-    bool           checkInputVoltage;
 } Adc_HAL_t;
 
 //===================================================================================================================//
 // Private variables                                                                                                 //
 //===================================================================================================================//
 
-Adc_Channel_t adc_DcdcChannel    = {.channel = eADC_CHANNEL_DC_DC_FB, .lastMeasurement = 0};
-Adc_Channel_t adc_ControlChannel = {.channel = eADC_CHANNEL_CONTROL_IN, .lastMeasurement = 0};
+Adc_Channel_t adc_DcdcChannel    = ADC_CHANNEL_INIT_STRUCT();
+Adc_Channel_t adc_ControlChannel = ADC_CHANNEL_INIT_STRUCT();
 
-volatile Adc_HAL_t hAdc = ADC_INIT_STRUCT();
+volatile Adc_HAL_t hAdc = ADC_HAL_INIT_STRUCT();
 volatile uint16_t  batteryVoltage;
 
 //===================================================================================================================//
@@ -95,20 +100,20 @@ __weak void Adc_Done_Callback(volatile Adc_Channel_t *channel)
  */
 ISR(ADC_vect)
 {
-    hAdc.status = ADC_STATUS_READY;
 
-    if(hAdc.checkInputVoltage)
+    if(hAdc.status == eADC_STATUS_CHECK_VOLTAGE)
     {
         batteryVoltage = ADC;
     }
     else
     {
+        hAdc.status = eADC_STATUS_READY;
         hAdc.channel[hAdc.activeChannel]->lastMeasurement = ADC;
         Adc_Done_Callback(hAdc.channel[hAdc.activeChannel]);
+        Adc_Perform();
     }
 
-    hAdc.status = ADC_STATUS_IDLE;
-    Adc_Perform();
+    hAdc.status = eADC_STATUS_IDLE;
 }
 
 //===================================================================================================================//
@@ -144,12 +149,23 @@ static void Adc_privJumpToNextChannel()
  */
 void Adc_Init()
 {
-    // Set voltage reference to internal
-    ADMUX = _BV(REFS0) | _BV(REFS1);
-    // Enable interrupts and prescaler
-    ADCSRA = _BV(ADEN) | _BV(ADIE) | ADC_USED_PRESCALER;
 
-    hAdc.status = ADC_STATUS_IDLE;
+    if(hAdc.status == eADC_STATUS_CHECK_VOLTAGE) // Operation only at init
+    {
+        ADMUX = _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
+        ADMUX = (ADMUX & 0x0F) | (_BV(REFS0)); // Vref to AVcc
+    }
+    else                    // Normal operation
+    {
+        hAdc.status = eADC_STATUS_IDLE;
+        // Set voltage reference to internal
+        ADMUX = _BV(REFS0) | _BV(REFS1);
+        // Enable interrupts and prescaler
+        ADCSRA = _BV(ADEN) | _BV(ADIE) | ADC_USED_PRESCALER;
+
+        hAdc.channel[eADC_CHANNEL_DC_DC_FB]->channel = eADC_CHANNEL_DC_DC_FB;
+        hAdc.channel[eADC_CHANNEL_CONTROL_IN]->channel = eADC_CHANNEL_CONTROL_IN;
+    }
 }
 
 /**
@@ -167,17 +183,16 @@ bool Adc_Perform()
 
     // if not, start
 
-    if((hAdc.status != ADC_STATUS_IDLE) || (hAdc.checkInputVoltage == true))
+    if((hAdc.status == eADC_STATUS_IDLE) || (hAdc.status == eADC_STATUS_READY))
     {
-        return false;
+        Adc_privJumpToNextChannel();
+        ADC_START_MEASURE();
+        hAdc.status = eADC_STATUS_MEASURING;
+
+        return true;
     }
 
-    Adc_privJumpToNextChannel();
-
-    ADC_START_MEASURE();
-    hAdc.status = ADC_STATUS_MEASURING;
-
-    return true;
+    return false;
 }
 
 /**
@@ -191,16 +206,16 @@ uint16_t Adc_CheckInputVoltage()
 {
     uint16_t voltage;
 
+    hAdc.status = eADC_STATUS_CHECK_VOLTAGE;
+    
     // set proper admux and tweak reference
-    ADMUX = _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
-    ADMUX = (ADMUX & 0x0F) | (_BV(REFS0)); // Vref to AVcc
+    Adc_Init();
 
     // start measure
     ADC_START_MEASURE();
-    hAdc.status = ADC_STATUS_MEASURING;
 
     // wait for it
-    while(hAdc.status != ADC_STATUS_IDLE)
+    while(hAdc.status != eADC_STATUS_IDLE)
     {
         ;
     }
@@ -209,8 +224,7 @@ uint16_t Adc_CheckInputVoltage()
     voltage = (uint16_t)(((uint32_t)(ADC_VREF + ADC_VREF_OFFSET) * ADC_MAX_RESOLUTION) / batteryVoltage); // in mV
 
     // go back to normal mode
-    hAdc.checkInputVoltage = false;
-    Adc_Init();
+    hAdc.status = eADC_STATUS_UNITIALIZED;
 
     return voltage;
 }
