@@ -13,7 +13,6 @@
 #include "adc.h"
 
 #include "global_defines.h"
-#include "gpio.h"
 #include "system_settings.h"
 
 // Target specific includes
@@ -96,7 +95,6 @@ __weak void Adc_Done_Callback(volatile Adc_Channel_t *channel)
  */
 ISR(ADC_vect)
 {
-    GPIO_OUT_LED_C_ENABLE();
     hAdc.status = ADC_STATUS_READY;
 
     if(hAdc.checkInputVoltage)
@@ -111,8 +109,6 @@ ISR(ADC_vect)
 
     hAdc.status = ADC_STATUS_IDLE;
     Adc_Perform();
-
-    GPIO_OUT_LED_C_DISABLE();
 }
 
 //===================================================================================================================//
@@ -128,11 +124,13 @@ static void Adc_privJumpToNextChannel()
 
     if(hAdc.activeChannel == eADC_CHANNEL_CONTROL_IN)
     {
-        ADMUX = (ADMUX & 0xF0) | eADC_CHANNEL_DC_DC_FB;
+        ADMUX              = (ADMUX & 0xF0) | eADC_CHANNEL_DC_DC_FB;
+        hAdc.activeChannel = eADC_CHANNEL_DC_DC_FB;
     }
     else
     {
-        ADMUX = (ADMUX & 0xF0) | eADC_CHANNEL_CONTROL_IN;
+        ADMUX              = (ADMUX & 0xF0) | eADC_CHANNEL_CONTROL_IN;
+        hAdc.activeChannel = eADC_CHANNEL_CONTROL_IN;
     }
 }
 
@@ -204,16 +202,15 @@ uint16_t Adc_CheckInputVoltage()
     // wait for it
     while(hAdc.status != ADC_STATUS_IDLE)
     {
-        GPIO_OUT_LED_B_ENABLE();
+        ;
     }
 
     // calculate it
     voltage = (uint16_t)(((uint32_t)(ADC_VREF + ADC_VREF_OFFSET) * ADC_MAX_RESOLUTION) / batteryVoltage); // in mV
 
     // go back to normal mode
-    // hAdc.checkInputVoltage = false;
+    hAdc.checkInputVoltage = false;
     Adc_Init();
-    GPIO_OUT_LED_B_DISABLE();
 
     return voltage;
 }
