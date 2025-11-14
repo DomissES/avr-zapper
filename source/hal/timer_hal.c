@@ -108,7 +108,7 @@ void TimerHAL_InitTimer_1(Timer_1_HAL_t *pTimer)
     *pTimer->SFR.tccrB = _BV(WGM13);
 
     // Set frequency of 125 kHz by setting value for OCR A
-    *pTimer->SFR.ocrA = 32;
+    *pTimer->SFR.ocrA = DCDC_TIMER_OCR_VALUE;
 }
 
 void TimerHAL_InitTimer_2(Timer_2_HAL_t *pTimer)

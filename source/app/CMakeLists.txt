@@ -1,3 +1,4 @@
 target_sources(${PROJECT_NAME} PRIVATE
-    main.c
+    "callbacks.c"
+    "main.c"
 )

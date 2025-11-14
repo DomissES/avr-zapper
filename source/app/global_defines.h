@@ -12,6 +12,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+// Global file incluedes
+#include "uart_printf.h"
+
 // Compiler specific attributes
 #define __weak          __attribute__((weak))
 #define __packed        __attribute__((packed))
@@ -28,3 +31,6 @@
 // Interrupt related
 #define ENABLE_GLOBAL_INTERRUPTS()  sei()
 #define DISABLE_GLOBAL_INTERRUPTS() cli()
+
+// Basic comparisons
+#define IN_RANGE(x, min, max)   (((x) >= (min)) && ((x) <= (max)))

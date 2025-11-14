@@ -39,11 +39,6 @@
 #define ADC_SET_CHANNEL_1  ADCSRA = (ADCSRA & 0xF0) | ADC_CHANNEL_1
 #define ADC_SET_CHANNEL_2  ADCSRA = (ADCSRA & 0xF0) | ADC_CHANNEL_2
 
-// Values referred to proper measuring
-#define ADC_VREF           1300  // mV
-#define ADC_VREF_OFFSET    (-85) // mV
-#define ADC_MAX_RESOLUTION 1023  // mV
-
 // clang-format off
 #define ADC_HAL_INIT_STRUCT()                                                                                         \
 {                                                                                                                     \
@@ -107,7 +102,7 @@ ISR(ADC_vect)
     }
     else
     {
-        hAdc.status = eADC_STATUS_READY;
+        hAdc.status                                       = eADC_STATUS_READY;
         hAdc.channel[hAdc.activeChannel]->lastMeasurement = ADC;
         Adc_Done_Callback(hAdc.channel[hAdc.activeChannel]);
         Adc_Perform();
@@ -155,7 +150,7 @@ void Adc_Init()
         ADMUX = _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
         ADMUX = (ADMUX & 0x0F) | (_BV(REFS0)); // Vref to AVcc
     }
-    else                    // Normal operation
+    else // Normal operation
     {
         hAdc.status = eADC_STATUS_IDLE;
         // Set voltage reference to internal
@@ -163,9 +158,19 @@ void Adc_Init()
         // Enable interrupts and prescaler
         ADCSRA = _BV(ADEN) | _BV(ADIE) | ADC_USED_PRESCALER;
 
-        hAdc.channel[eADC_CHANNEL_DC_DC_FB]->channel = eADC_CHANNEL_DC_DC_FB;
+        hAdc.channel[eADC_CHANNEL_DC_DC_FB]->channel   = eADC_CHANNEL_DC_DC_FB;
         hAdc.channel[eADC_CHANNEL_CONTROL_IN]->channel = eADC_CHANNEL_CONTROL_IN;
     }
+}
+
+/**
+ * @brief Checks if adc is initialized
+ *
+ * @return true if initialized, false otherwise
+ */
+bool Adc_IsInitialized()
+{
+    return ((hAdc.status != eADC_STATUS_UNITIALIZED) && (hAdc.status != eADC_STATUS_CHECK_VOLTAGE));
 }
 
 /**
@@ -207,7 +212,7 @@ uint16_t Adc_CheckInputVoltage()
     uint16_t voltage;
 
     hAdc.status = eADC_STATUS_CHECK_VOLTAGE;
-    
+
     // set proper admux and tweak reference
     Adc_Init();
 
@@ -221,10 +226,11 @@ uint16_t Adc_CheckInputVoltage()
     }
 
     // calculate it
-    voltage = (uint16_t)(((uint32_t)(ADC_VREF + ADC_VREF_OFFSET) * ADC_MAX_RESOLUTION) / batteryVoltage); // in mV
+    voltage = (uint16_t)(((uint32_t)(ADC_VINTERNAL + ADC_INT_OFFSET) * ADC_MAX_RESOLUTION) / batteryVoltage); // in mV
 
     // go back to normal mode
     hAdc.status = eADC_STATUS_UNITIALIZED;
+    Adc_Init();
 
     return voltage;
 }

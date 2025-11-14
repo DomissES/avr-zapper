@@ -83,6 +83,13 @@ void Adc_Done_Callback();
 void Adc_Init();
 
 /**
+ * @brief Checks if adc is initialized
+ * 
+ * @return true if initialized, false otherwise
+ */
+ bool Adc_IsInitialized();
+
+/**
  * @brief Realizes the ADC measurement.
  *
  * It selects the next channel and starts the measure. Use this function to enable continuous measuring.
