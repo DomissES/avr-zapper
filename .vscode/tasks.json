@@ -27,25 +27,6 @@
                 "${workspaceFolder}/tools/increase_flashing_number.py"
             ],
             "problemMatcher": []
-        },
-        {
-            "label": "Doorstop-edit",
-            "detail": "Activate venv and run doorstop-edit",
-            "type": "shell",
-            "command": "Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process; ${workspaceFolder}/../python_venv/Scripts/Activate.ps1; doorstop-edit",
-            "options": {
-                "cwd": "${workspaceFolder}/../Requirements",
-                "shell": {
-                    "executable": "powershell.exe",
-                    "args": [
-                        "-NoProfile",
-                        "-Command"
-                    ]
-                }
-            }
-        },
-        {
-            "label": "Kanban"
         }
     ]
 }
