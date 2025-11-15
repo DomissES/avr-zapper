@@ -46,5 +46,5 @@ void Adc_Done_Callback(volatile Adc_Channel_t *channel)
 
 void TimerHAL_Timer0_OverflowCallback()
 {
-
+    DisplayDriver_PerformMultiplex();
 }

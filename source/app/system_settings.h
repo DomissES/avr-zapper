@@ -39,4 +39,7 @@
 #define DCDC_MAX_OUTPUT_VOLTAGE      20000 // mV
 #define DCDC_MIN_OUTPUT_VOLTAGE       5000  // mV
 
+// Display Driver related
+#define DISPLAY_BLINKING_PERIOD     2048
+
 #endif // SYSTEM_SETTINGS_H_
