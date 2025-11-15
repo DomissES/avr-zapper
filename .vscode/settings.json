@@ -21,7 +21,11 @@
         "atomic.h": "c",
         "stdio.h": "c",
         "setbaud.h": "c",
-        "timer_hal.h": "c"
+        "timer_hal.h": "c",
+        "adc.h": "c",
+        "system_settings.h": "c",
+        "global_defines.h": "c",
+        "dcdc_driver.h": "c"
     },
     "cmake.sourceDirectory": "${workspaceFolder}",
     "C_Cpp.codeAnalysis.clangTidy.enabled": true,
