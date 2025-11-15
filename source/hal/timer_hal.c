@@ -29,8 +29,14 @@
 #include <avr/io.h>
 
 //===================================================================================================================//
-// Private macro defines                                                                                              //
+// Private macro defines                                                                                             //
 //===================================================================================================================//
+
+#define TIMER_0_SFR_INIT()                                                                                             \
+    {                                                                                                                  \
+        pTimer->SFR.tccr = &TCCR0;                                                                                     \
+        pTimer->SFR.tcnt = &TCNT0;                                                                                     \
+    }
 
 #define TIMER_1_SFR_INIT()                                                                                             \
     {                                                                                                                  \
@@ -48,28 +54,37 @@
         pTimer->SFR.tcnt = &TCNT2;                                                                                     \
     }
 
-#define TIMER_1_PRESCALER_1    1
-#define TIMER_1_PRESCALER_8    2
-#define TIMER_1_PRESCALER_64   3
-#define TIMER_1_PRESCALER_256  4
-#define TIMER_1_PRESCALER_1024 5
+#define TIMER_0_1_PRESCALER_1    1
+#define TIMER_0_1_PRESCALER_8    2
+#define TIMER_0_1_PRESCALER_64   3
+#define TIMER_0_1_PRESCALER_256  4
+#define TIMER_0_1_PRESCALER_1024 5
 
-#define TIMER_1_USED_PRESCALER TIMER_1_PRESCALER_1
+#define TIMER_0_USED_PRESCALER   TIMER_0_1_PRESCALER_8
+#define TIMER_1_USED_PRESCALER   TIMER_0_1_PRESCALER_1
 
-#define TIMER_2_PRESCALER_1    1
-#define TIMER_2_PRESCALER_8    2
-#define TIMER_2_PRESCALER_32   3
-#define TIMER_2_PRESCALER_64   4
-#define TIMER_2_PRESCALER_128  5
-#define TIMER_2_PRESCALER_256  6
-#define TIMER_2_PRESCALER_1024 7
+#define TIMER_2_PRESCALER_1      1
+#define TIMER_2_PRESCALER_8      2
+#define TIMER_2_PRESCALER_32     3
+#define TIMER_2_PRESCALER_64     4
+#define TIMER_2_PRESCALER_128    5
+#define TIMER_2_PRESCALER_256    6
+#define TIMER_2_PRESCALER_1024   7
 
-#define TIMER_2_USED_PRESCALER TIMER_2_PRESCALER_32
+#define TIMER_2_USED_PRESCALER   TIMER_2_PRESCALER_32
 
 //===================================================================================================================//
 // Timer interrupts definitions                                                                                      //
 //===================================================================================================================//
+__weak void TimerHAL_Timer0_OverflowCallback()
+{
+    ;
+}
 
+ISR(TIMER0_OVF_vect)
+{
+    TimerHAL_Timer0_OverflowCallback();
+}
 //===================================================================================================================//
 // Private definitions                                                                                               //
 //===================================================================================================================//
@@ -78,6 +93,7 @@
 // Private variables                                                                                                  //
 //===================================================================================================================//
 
+Timer_0_HAL_t hTimer0;
 Timer_1_HAL_t hTimer1;
 Timer_2_HAL_t hTimer2;
 //===================================================================================================================//
@@ -93,6 +109,22 @@ Timer_2_HAL_t hTimer2;
  *
  * @param pTimer pointer to timer instance
  */
+void TimerHAL_InitTimer_0(Timer_0_HAL_t *pTimer)
+{
+    ASSERT(pTimer != NULL);
+
+    TIMER_0_SFR_INIT();
+    pTimer->instance = eTIMER_0;
+    pTimer->running  = 0;
+
+    // Configure timer as normal mode
+    // top is 0xFF
+    // TCCR has nothing to configure
+
+    // Set overflow interrupt
+    TIMSK |= _BV(TOIE0);
+}
+
 void TimerHAL_InitTimer_1(Timer_1_HAL_t *pTimer)
 {
     ASSERT(pTimer != NULL);
@@ -136,10 +168,18 @@ void TimerHAL_InitTimer_2(Timer_2_HAL_t *pTimer)
  */
 void TimerHAL_StopTimer(Timer_index_e timer)
 {
-    if(timer == eTIMER_1)
+    switch(timer)
+    {
+    case eTIMER_0:
+        *hTimer0.SFR.tccr = *hTimer0.SFR.tccr & 0xF8;
+        break;
+    case eTIMER_1:
         *hTimer1.SFR.tccrB = *hTimer1.SFR.tccrB & 0xF8;
-    else
+        break;
+    case eTIMER_2:
         *hTimer2.SFR.tccr = *hTimer2.SFR.tccr & 0xF8;
+        break;
+    }
 }
 
 /**
@@ -151,10 +191,18 @@ void TimerHAL_StopTimer(Timer_index_e timer)
  */
 void TimerHAL_StartTimer(Timer_index_e timer)
 {
-    if(timer == eTIMER_1)
+    switch(timer)
+    {
+    case eTIMER_0:
+        *hTimer0.SFR.tccr = (*hTimer0.SFR.tccr & 0xF8) | TIMER_0_USED_PRESCALER;
+        break;
+    case eTIMER_1:
         *hTimer1.SFR.tccrB = (*hTimer1.SFR.tccrB & 0xF8) | TIMER_1_USED_PRESCALER;
-    else
+        break;
+    case eTIMER_2:
         *hTimer2.SFR.tccr = (*hTimer2.SFR.tccr & 0xF8) | TIMER_2_USED_PRESCALER;
+        break;
+    }
 }
 
 /**

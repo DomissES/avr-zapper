@@ -14,6 +14,7 @@
 
 #include "adc.h"
 #include "dcdc_driver.h"
+#include "timer_hal.h"
 
 // Target specific includes
 #include <avr/interrupt.h>
@@ -41,4 +42,9 @@ void Adc_Done_Callback(volatile Adc_Channel_t *channel)
     {
         DcdcDriver_ProcessMeasurement(channel->lastMeasurement);
     }
+}
+
+void TimerHAL_Timer0_OverflowCallback()
+{
+
 }
