@@ -27,7 +27,7 @@
 #define ADC_VREF            2540 // mV
 
 // DCDC driver related
-#define DCDC_TIMER_OCR_VALUE 32
+#define DCDC_TIMER_OCR_VALUE 64
 
 #define DCDC_TIMER_MIN_OCR 0
 #define DCDC_TIMER_MAX_OCR 16

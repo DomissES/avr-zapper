@@ -24,6 +24,7 @@
 // Private macro defines                                                                                             //
 //===================================================================================================================//
 
+#define DCDC_OUTPUT_SEQUENCE_LENGTH 4
 //===================================================================================================================//
 // Private definitions                                                                                               //
 //===================================================================================================================//
@@ -35,13 +36,21 @@ typedef struct
     uint16_t missedSamples;
 } DcdcDriver_Averaging_t;
 
+typedef struct
+{
+    uint8_t  seq[DCDC_OUTPUT_SEQUENCE_LENGTH];
+    uint8_t  position;
+    uint8_t  dutyCycle;
+    uint16_t raw;
+} DcdcDriver_OutControl_t;
+
 typedef struct dcdc_driver
 {
-    uint16_t               setVoltage;
-    uint16_t               actualVoltage;
-    uint16_t               actualRawVoltage;
-    DcdcDriver_Averaging_t averaging;
-    uint8_t                dutyCycle;
+    uint16_t                setVoltage;
+    uint16_t                actualVoltage;
+    uint16_t                actualRawVoltage;
+    DcdcDriver_Averaging_t  averaging;
+    DcdcDriver_OutControl_t output;
 } Dcdc_Driver_t;
 
 //===================================================================================================================//
@@ -61,18 +70,64 @@ static uint16_t DcdcDriver_privConvertVoltage(uint16_t rawVoltage)
     return DCDC_INPUT_VOLTAGE_DIVIDER * (uint16_t)temp;
 }
 
-static uint8_t DcdcDriver_privRegulateVoltage(uint16_t setVoltage, uint16_t actualVoltage)
+static uint8_t DcdcDriver_privRegulateOutput(uint16_t setVoltage, uint16_t actualVoltage)
 {
     int16_t error = actualVoltage - setVoltage;
+    static int16_t integral;
+    integral += error;
 
-    int16_t output = (-error) / 1024; // simple P controller with Kp = 0.01
+    if(integral > 2048)
+    {
+        integral = 2048;
+    }
+    if(integral < -2048)
+    {
+        integral = -2048;
+    }
 
-    if(output > DCDC_TIMER_MAX_OCR)
-        output = DCDC_TIMER_MAX_OCR;
-    if(output < DCDC_TIMER_MIN_OCR)
-        output = DCDC_TIMER_MIN_OCR;
+    int16_t output = -((error / 32) + (integral / 512)); // simple P controller with Kp = 0.01
+
+    if(output > 4*DCDC_TIMER_MAX_OCR)
+        output = 4*DCDC_TIMER_MAX_OCR;
+    if(output < 4*DCDC_TIMER_MIN_OCR)
+        output = 4*DCDC_TIMER_MIN_OCR;
 
     return (uint8_t)output;
+}
+
+static void DcdcDriver_privConvertOutputToSequence(uint8_t dutyCycle)
+{
+
+    uint8_t common    = dutyCycle / DCDC_OUTPUT_SEQUENCE_LENGTH;
+    uint8_t remainder = dutyCycle % DCDC_OUTPUT_SEQUENCE_LENGTH;
+
+    for(uint8_t i = 0; i < DCDC_OUTPUT_SEQUENCE_LENGTH; i++)
+    {
+        uint8_t temp        = remainder > i ? 1 : 0;
+        hDcdc.output.seq[i] = common + temp;
+    }
+}
+
+uint8_t DcdcDriver_privPerformOutSequence()
+{
+    uint8_t ocrValue;
+
+    if(hDcdc.output.position < DCDC_OUTPUT_SEQUENCE_LENGTH)
+    {
+        ocrValue = hDcdc.output.seq[hDcdc.output.position];
+    }
+    else
+    {
+        ocrValue = 0;
+    }
+    hDcdc.output.dutyCycle = ocrValue;
+    hDcdc.output.position++;
+    if(hDcdc.output.position >= 2 * DCDC_OUTPUT_SEQUENCE_LENGTH)
+    {
+        hDcdc.output.position = 0;
+    }
+
+    return hDcdc.output.dutyCycle;
 }
 
 //===================================================================================================================//
@@ -114,8 +169,8 @@ bool DcdcDriver_Init()
     }
     TimerHAL_SetOCR(eTIMER_1, DCDC_TIMER_MIN_OCR);
 
-    hDcdc.setVoltage = 5;
-    hDcdc.dutyCycle  = DCDC_TIMER_MIN_OCR;
+    hDcdc.setVoltage       = 5000;
+    hDcdc.output.dutyCycle = DCDC_TIMER_MIN_OCR;
 
     return true;
 }
@@ -170,14 +225,16 @@ void DcdcDriver_Perform()
     if((hDcdc.actualVoltage < (hDcdc.setVoltage - DCDC_POSSIBLE_HYSTERESIS)) || // Voltage is to low
        (hDcdc.actualVoltage > (hDcdc.setVoltage + DCDC_POSSIBLE_HYSTERESIS)))   // Voltage is to high
     {
-        hDcdc.dutyCycle = DcdcDriver_privRegulateVoltage(hDcdc.setVoltage, hDcdc.actualVoltage);
-        TimerHAL_SetOCR(eTIMER_1, hDcdc.dutyCycle);
+        hDcdc.output.raw = DcdcDriver_privRegulateOutput(hDcdc.setVoltage, hDcdc.actualVoltage);
+        DcdcDriver_privConvertOutputToSequence(hDcdc.output.raw);
         voltageOutOfRange++;
     }
     else // Voltage is ok
     {
         voltageOutOfRange = 0;
     }
+    DcdcDriver_privPerformOutSequence();
+    TimerHAL_SetOCR(eTIMER_1, hDcdc.output.dutyCycle);
 
-    LOG_DEBUG("Current duty cycle is: %d\t out of range: %d", hDcdc.dutyCycle, voltageOutOfRange);
+    LOG_DEBUG("Current duty cycle is: %d\t out of range: %d", hDcdc.output.raw, voltageOutOfRange);
 }
