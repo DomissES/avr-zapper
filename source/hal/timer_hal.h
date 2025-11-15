@@ -5,14 +5,14 @@
  * @brief Header file for timer HAL
  *
  * In this system there will be two timers:
- *  Timer 2:
- *      Used for Output key. It uses PWM signal OC1B. Possible regulators will be the frequency of the pwm signal.
- *      It is a 8-bit timer so it has more flexibility
  *  Timer 1:
- *      Used for DC-DC key. It uses PWM signal OC2. Main regulation will be the duty cycle.
+ *      Used for DC-DC key. It uses PWM signal OC1B. Main regulation will be the duty cycle.
  *      Additional function for this timer will be the control of 7-segments LCD. Mainly it'll provide increasing a
  *      global timestamp which will be used for a software timer. The software timer will be then used for multiplexing
  *      between two digits. It is an 16-bit timer.
+ *  Timer 2:
+ *      Used for Output key. It uses PWM signal OC2. Possible regulators will be the frequency of the pwm signal.
+ *      It is a 8-bit timer.
  *
  * @author domis
  * @date 17.10.2025

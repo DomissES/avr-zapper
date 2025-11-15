@@ -3,7 +3,9 @@
  * @addtogroup Level_1_HAL
  *
  * @brief Header file for adc converter
- * TODO:: add more sophisticated description and explanation
+ * This project uses two channels of adc, one for control in and one for dcdc. This module provides basic initialization
+ * and measurement functions.
+ * Additional function is the check voltage function. It is meant to call it only at the very beginning of whole application.
  *
  * @author domis
  * @date 07.11.2025
@@ -74,7 +76,7 @@ typedef struct
  *
  * @param channel channel which the measure was done
  */
-void Adc_Done_Callback();
+void Adc_Done_Callback(volatile Adc_Channel_t *channel);
 
 /**
  * @brief Initializes the ADC with configuration needed for this project

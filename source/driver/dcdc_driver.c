@@ -191,6 +191,14 @@ void DcdcDriver_Enable(bool on)
 
 void DcdcDriver_SetVoltage(uint16_t voltageLevel)
 {
+    if(voltageLevel > DCDC_MAX_OUTPUT_VOLTAGE)
+    {
+        voltageLevel = DCDC_MAX_OUTPUT_VOLTAGE;
+    }
+    if(voltageLevel < DCDC_MIN_OUTPUT_VOLTAGE)
+    {
+        voltageLevel = DCDC_MIN_OUTPUT_VOLTAGE;
+    }
     hDcdc.setVoltage = voltageLevel;
 }
 
