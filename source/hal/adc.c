@@ -5,7 +5,8 @@
  * @brief Source file for adc
  * This project uses two channels of adc, one for control in and one for dcdc. This module provides basic initialization
  * and measurement functions.
- * Additional function is the check voltage function. It is meant to call it only at the very beginning of whole application.
+ * Additional function is the check voltage function. It is meant to call it only at the very beginning of whole
+ * application.
  *
  * @author domis
  * @date 07.11.2025
@@ -200,6 +201,17 @@ bool Adc_Perform()
     }
 
     return false;
+}
+
+/**
+ * @brief Returns last measurement
+ *
+ * @param channel Channel to get the measure from
+ * @return last measurement
+ */
+uint16_t Adc_GetLastMeasurement(Adc_Instance_e channel)
+{
+    return hAdc.channel[channel]->lastMeasurement;
 }
 
 /**

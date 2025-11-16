@@ -179,6 +179,8 @@ void TimerHAL_StopTimer(Timer_index_e timer)
     case eTIMER_2:
         *hTimer2.SFR.tccr = *hTimer2.SFR.tccr & 0xF8;
         break;
+    case eTIMER_NONE:
+        break;
     }
 }
 
@@ -201,6 +203,8 @@ void TimerHAL_StartTimer(Timer_index_e timer)
         break;
     case eTIMER_2:
         *hTimer2.SFR.tccr = (*hTimer2.SFR.tccr & 0xF8) | TIMER_2_USED_PRESCALER;
+        break;
+    case eTIMER_NONE:
         break;
     }
 }

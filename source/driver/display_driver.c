@@ -26,6 +26,9 @@
 // Private macro defines                                                                                             //
 //===================================================================================================================//
 
+#define DISPLAY_SPECIAL_L_INDEX 16
+#define DISPLAY_SPECIAL_o_INDEX 17
+#define DISPLAY_SPECIAL_r_INDEX 18
 //===================================================================================================================//
 // Private definitions                                                                                               //
 //===================================================================================================================//
@@ -42,7 +45,7 @@ typedef struct
 // Private variables                                                                                                 //
 //===================================================================================================================//
 
-const uint8_t DisplayDriver_7SegmentMap[16] = {
+const uint8_t DisplayDriver_7SegmentMap[19] = {
     0b00111111, // 0
     0b00000110, // 1
     0b01011011, // 2
@@ -99,6 +102,8 @@ bool DisplayDriver_privGetPowerMode()
     case eDISPLAY_MODE_ON:
         return 1;
     }
+
+    return 0;
 }
 
 //===================================================================================================================//
@@ -155,4 +160,23 @@ void DisplayDriver_SetNumber(uint8_t number)
     display.activeDigits[1] = number % 10;
 }
 
-void DisplayDriver_SetSpecial(DisplayDriver_SpecialDigit_e digit) {}
+void DisplayDriver_SetSpecial(DisplayDriver_SpecialDigit_e digit)
+{
+    switch(digit)
+    {
+    case eDISPLAY_DIGIT_ERROR:
+        display.activeDigits[0] = 0x0E;                    // E
+        display.activeDigits[1] = DISPLAY_SPECIAL_r_INDEX; // r
+        break;
+    case eDISPLAY_DIGIT_BATTERY:
+        display.activeDigits[0] = 0x0B; // B
+        display.activeDigits[1] = 0x0A; // A
+        break;
+    case eDISPLAY_DIGIT_BATTERY_LOW:
+        display.activeDigits[0] = DISPLAY_SPECIAL_L_INDEX; // L
+        display.activeDigits[1] = DISPLAY_SPECIAL_o_INDEX; // o
+        break;
+    default:
+        break;
+    }
+}
