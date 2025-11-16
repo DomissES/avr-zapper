@@ -44,6 +44,6 @@
 
 // Gpio related
 
-#define GPIO_DEBOUNCE_TIME      8
+#define GPIO_DEBOUNCE_TIME      128
 
 #endif // SYSTEM_SETTINGS_H_

@@ -20,6 +20,7 @@
 // Target specific includes
 #include <avr/interrupt.h>
 #include <avr/io.h>
+#include <util/atomic.h>
 #include <util/delay.h>
 
 #define GPIO_INPUT_BUTTON_LEVEL_ON  0
@@ -29,7 +30,29 @@
 // Private variables                                                                                                 //
 //===================================================================================================================//
 
-Gpio_Button_t button[2];
+Gpio_Button_t hButton[2] = {
+    // Button A
+    {
+        .debounce =
+            {
+                .oldValue       = GPIO_INPUT_BUTTON_LEVEL_OFF,
+                .debouncedValue = GPIO_INPUT_BUTTON_LEVEL_OFF,
+                .counter        = GPIO_DEBOUNCE_TIME,
+            },
+        .status = eBUTTON_STATUS_IDLE,
+        .input  = GPIO_INPUT_BUTTON_LEVEL_OFF,
+    },
+    // Button B
+    {
+        .debounce =
+            {
+                .oldValue       = GPIO_INPUT_BUTTON_LEVEL_OFF,
+                .debouncedValue = GPIO_INPUT_BUTTON_LEVEL_OFF,
+                .counter        = GPIO_DEBOUNCE_TIME,
+            },
+        .status = eBUTTON_STATUS_IDLE,
+        .input  = GPIO_INPUT_BUTTON_LEVEL_OFF,
+    }};
 
 //===================================================================================================================//
 // Interrupt vectors                                                                                                 //
@@ -38,12 +61,12 @@ Gpio_Button_t button[2];
 ISR(INT0_vect)
 {
 
-    button[0].input = GPIO_IN_GET_SWITCH_A();
+    hButton[eGPIO_BUTTON_A].input = GPIO_IN_GET_SWITCH_A();
 }
 
 ISR(INT1_vect)
 {
-    button[1].input = GPIO_IN_GET_SWITCH_A();
+    hButton[eGPIO_BUTTON_B].input = GPIO_IN_GET_SWITCH_B();
 }
 
 //===================================================================================================================//
@@ -62,24 +85,31 @@ ISR(INT1_vect)
  */
 static bool Gpio_privDebounce(Gpio_Debouncer_t *pButton, uint8_t currentValue)
 {
-    bool isValid = false;
+    bool changed = false;
 
     if(currentValue != pButton->oldValue)
     {
-        pButton->counter = GPIO_DEBOUNCE_TIME;
+        pButton->counter  = GPIO_DEBOUNCE_TIME;
+        pButton->counting = true;
     }
 
-    if(pButton->counter == 0)
+    if(pButton->counting)
     {
-        pButton->debouncedValue = pButton->oldValue;
-        isValid                 = true;
-    }
-    else
-    {
-        pButton->counter--;
+        if(pButton->counter == 0)
+        {
+            pButton->debouncedValue = pButton->oldValue;
+            pButton->counting       = false;
+            changed                 = true;
+        }
+        else
+        {
+            pButton->counter--;
+        }
     }
 
-    return isValid;
+    pButton->oldValue = currentValue;
+
+    return changed;
 }
 
 //===================================================================================================================//
@@ -94,15 +124,18 @@ static bool Gpio_privDebounce(Gpio_Debouncer_t *pButton, uint8_t currentValue)
  */
 void Gpio_ButtonsPerform()
 {
-    if(Gpio_privDebounce(&button[0].debounce, button[0].input))
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
-        button[0].status =
-            (button[0].input == GPIO_INPUT_BUTTON_LEVEL_ON) ? eBUTTON_STATUS_PRESSED : eBUTTON_STATUS_RELEASED;
-    }
-    if(Gpio_privDebounce(&button[1].debounce, button[1].input))
-    {
-        button[1].status =
-            (button[1].input == GPIO_INPUT_BUTTON_LEVEL_ON) ? eBUTTON_STATUS_PRESSED : eBUTTON_STATUS_RELEASED;
+        if(Gpio_privDebounce(&hButton[eGPIO_BUTTON_A].debounce, hButton[eGPIO_BUTTON_A].input))
+        {
+            hButton[eGPIO_BUTTON_A].status =
+                (hButton[eGPIO_BUTTON_A].input == GPIO_INPUT_BUTTON_LEVEL_ON) ? eBUTTON_STATUS_PRESSED : eBUTTON_STATUS_RELEASED;
+        }
+        if(Gpio_privDebounce(&hButton[eGPIO_BUTTON_B].debounce, hButton[eGPIO_BUTTON_B].input))
+        {
+            hButton[eGPIO_BUTTON_B].status =
+                (hButton[eGPIO_BUTTON_B].input == GPIO_INPUT_BUTTON_LEVEL_ON) ? eBUTTON_STATUS_PRESSED : eBUTTON_STATUS_RELEASED;
+        }
     }
 }
 
@@ -154,9 +187,8 @@ Gpio_ButtonStatus_e Gpio_GetButton(Gpio_Button_t *pButton)
 {
     Gpio_ButtonStatus_e current = pButton->status;
 
-    // if it was active status, reset it
-    if(pButton->status != eBUTTON_STATUS_IDLE)
-        pButton->status = eBUTTON_STATUS_IDLE;
+    // reset it
+    pButton->status = eBUTTON_STATUS_IDLE;
 
     return current;
 }

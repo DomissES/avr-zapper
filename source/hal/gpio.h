@@ -38,13 +38,14 @@ typedef enum
     eBUTTON_STATUS_RELEASED
 } Gpio_ButtonStatus_e;
 
-typedef struct
+typedef volatile struct
 {
     uint8_t oldValue;
     uint8_t debouncedValue;
     uint8_t counter;
+    bool counting;
 } Gpio_Debouncer_t;
-typedef struct
+typedef volatile struct
 {
     Gpio_Debouncer_t    debounce;
     Gpio_ButtonStatus_e status;
@@ -55,7 +56,7 @@ typedef struct
 // Public variables                                                                                                  //
 //===================================================================================================================//
 
-extern Gpio_Button_t button[2];
+extern Gpio_Button_t hButton[2];
 //===================================================================================================================//
 // Macro for pin manipulation                                                                                        //
 //===================================================================================================================//
