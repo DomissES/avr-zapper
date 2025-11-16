@@ -14,7 +14,9 @@
 
 #include "adc.h"
 #include "dcdc_driver.h"
+#include "gpio.h"
 #include "timer_hal.h"
+#include "display_driver.h"
 
 // Target specific includes
 #include <avr/interrupt.h>
@@ -27,14 +29,13 @@
 // Private definitions                                                                                               //
 //===================================================================================================================//
 
-
 //===================================================================================================================//
 // Function callbacks                                                                                                //
 //===================================================================================================================//
 
 void Adc_Done_Callback(volatile Adc_Channel_t *channel)
 {
-    if (channel->channel == eADC_CHANNEL_CONTROL_IN)
+    if(channel->channel == eADC_CHANNEL_CONTROL_IN)
     {
         /* code */
     }
@@ -47,4 +48,5 @@ void Adc_Done_Callback(volatile Adc_Channel_t *channel)
 void TimerHAL_Timer0_OverflowCallback()
 {
     DisplayDriver_PerformMultiplex();
+    Gpio_ButtonsPerform();
 }

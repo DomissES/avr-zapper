@@ -42,4 +42,8 @@
 // Display Driver related
 #define DISPLAY_BLINKING_PERIOD     2048
 
+// Gpio related
+
+#define GPIO_DEBOUNCE_TIME      8
+
 #endif // SYSTEM_SETTINGS_H_
