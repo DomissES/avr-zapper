@@ -81,9 +81,10 @@ typedef struct
         volatile uint8_t *ocr;
         volatile uint8_t *tcnt;
     } SFR;
-    Timer_index_e instance  : 2;
-    bool          running   : 1;
-    bool          enableOut : 1;
+    Timer_index_e instance      : 2;
+    bool          running       : 1;
+    bool          enableOut     : 1;
+    uint8_t       usedPrescaler : 3;
 } Timer_2_HAL_t;
 
 //===================================================================================================================//
@@ -155,6 +156,14 @@ void TimerHAL_StopTimer(Timer_index_e timer);
 void TimerHAL_StartTimer(Timer_index_e timer);
 
 /**
+ * @brief Checks if the timer is currently running.
+ *
+ * @param timer timer index to the timer
+ * @return true if is running, false otherwise.
+ */
+bool TimerHAL_IsTimerEnabled(Timer_index_e timer);
+
+/**
  * @brief Changes Output compare value for specific timer
  *
  * Changing OCR value for timer 1 is for changing the duty cycle of PWM.
@@ -164,5 +173,15 @@ void TimerHAL_StartTimer(Timer_index_e timer);
  * @param ocrValue 16-bit value for timer 1, 8-bit value for timer 2
  */
 void TimerHAL_SetOCR(Timer_index_e timer, uint16_t ocrValue);
+
+/**
+ * @brief Sets proper prescaler for given timer
+ *
+ * Currently only timer 2 is supported.
+ *
+ * @param timer index to the timer instance.
+ * @param prescaler prescaler to be set. Possible values are 0..7.
+ */
+void TimerHAL_SetPrescaler(Timer_index_e timer, uint8_t prescaler);
 
 #endif // TIMER_HAL_H

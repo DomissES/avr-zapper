@@ -14,9 +14,10 @@
 
 #include "adc.h"
 #include "dcdc_driver.h"
-#include "gpio.h"
-#include "timer_hal.h"
 #include "display_driver.h"
+#include "gpio.h"
+#include "output_driver.h"
+#include "timer_hal.h"
 
 // Target specific includes
 #include <avr/interrupt.h>
@@ -37,7 +38,7 @@ void Adc_Done_Callback(volatile Adc_Channel_t *channel)
 {
     if(channel->channel == eADC_CHANNEL_CONTROL_IN)
     {
-        /* code */
+        OutputDriver_PerformControlInput(channel->lastMeasurement);
     }
     else
     {

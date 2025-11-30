@@ -172,12 +172,15 @@ void TimerHAL_StopTimer(Timer_index_e timer)
     {
     case eTIMER_0:
         *hTimer0.SFR.tccr = *hTimer0.SFR.tccr & 0xF8;
+        hTimer0.running   = false;
         break;
     case eTIMER_1:
         *hTimer1.SFR.tccrB = *hTimer1.SFR.tccrB & 0xF8;
+        hTimer1.running    = false;
         break;
     case eTIMER_2:
         *hTimer2.SFR.tccr = *hTimer2.SFR.tccr & 0xF8;
+        hTimer2.running   = false;
         break;
     case eTIMER_NONE:
         break;
@@ -197,14 +200,42 @@ void TimerHAL_StartTimer(Timer_index_e timer)
     {
     case eTIMER_0:
         *hTimer0.SFR.tccr = (*hTimer0.SFR.tccr & 0xF8) | TIMER_0_USED_PRESCALER;
+        hTimer0.running   = true;
         break;
     case eTIMER_1:
         *hTimer1.SFR.tccrB = (*hTimer1.SFR.tccrB & 0xF8) | TIMER_1_USED_PRESCALER;
+        hTimer1.running    = true;
         break;
     case eTIMER_2:
-        *hTimer2.SFR.tccr = (*hTimer2.SFR.tccr & 0xF8) | TIMER_2_USED_PRESCALER;
+        *hTimer2.SFR.tccr = (*hTimer2.SFR.tccr & 0xF8) | (hTimer2.usedPrescaler);
+        hTimer2.running   = true;
         break;
     case eTIMER_NONE:
+        break;
+    }
+}
+
+/**
+ * @brief Checks if the timer is currently running.
+ *
+ * @param timer timer index to the timer
+ * @return true if is running, false otherwise.
+ */
+bool TimerHAL_IsTimerEnabled(Timer_index_e timer)
+{
+    switch(timer)
+    {
+    case eTIMER_0:
+        return hTimer0.running;
+        break;
+    case eTIMER_1:
+        return hTimer1.running;
+        break;
+    case eTIMER_2:
+        return hTimer2.running;
+        break;
+    case eTIMER_NONE:
+        return false;
         break;
     }
 }
@@ -228,4 +259,20 @@ void TimerHAL_SetOCR(Timer_index_e timer, uint16_t ocrValue)
     {
         *hTimer2.SFR.ocr = (uint8_t)ocrValue;
     }
+}
+
+/**
+ * @brief Sets proper prescaler for given timer
+ *
+ * Currently only timer 2 is supported.
+ *
+ * @param timer index to the timer instance.
+ * @param prescaler prescaler to be set. Possible values are 0..7.
+ */
+void TimerHAL_SetPrescaler(Timer_index_e timer, uint8_t prescaler)
+{
+    (void)timer;
+
+    ASSERT((prescaler > 7) || (prescaler < 0));
+    hTimer2.usedPrescaler = prescaler;
 }

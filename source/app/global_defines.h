@@ -13,6 +13,7 @@
 #include <stdint.h>
 
 // Global file incluedes
+#include "my_assert.h"
 #include "uart_printf.h"
 
 // Compiler specific attributes
@@ -33,4 +34,4 @@
 #define DISABLE_GLOBAL_INTERRUPTS() cli()
 
 // Basic comparisons
-#define IN_RANGE(x, min, max)   (((x) >= (min)) && ((x) <= (max)))
+#define IN_RANGE(x, min, max)       (((x) >= (min)) && ((x) <= (max)))
