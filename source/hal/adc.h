@@ -119,4 +119,13 @@ uint16_t Adc_GetLastMeasurement(Adc_Instance_e channel);
  */
 uint16_t Adc_CheckInputVoltage();
 
+/**
+ * @brief Returns battery or supply votlage.
+ *
+ * This functions does not check if the measurement was done.
+ *
+ * @return battery voltage in milivolts
+ */
+uint16_t Adc_GetSupplyVoltage();
+
 #endif // ADC_H_

@@ -76,8 +76,9 @@ typedef struct
 Adc_Channel_t adc_DcdcChannel    = ADC_CHANNEL_INIT_STRUCT();
 Adc_Channel_t adc_ControlChannel = ADC_CHANNEL_INIT_STRUCT();
 
-volatile Adc_HAL_t hAdc = ADC_HAL_INIT_STRUCT();
-volatile uint16_t  batteryVoltage;
+volatile Adc_HAL_t hAdc              = ADC_HAL_INIT_STRUCT();
+volatile uint16_t  batteryVoltageRaw = 0;
+uint16_t           batteryVoltage    = 0;
 
 //===================================================================================================================//
 // ISR functions                                                                                                     //
@@ -101,7 +102,7 @@ ISR(ADC_vect)
 
     if(hAdc.status == eADC_STATUS_CHECK_VOLTAGE)
     {
-        batteryVoltage = ADC;
+        batteryVoltageRaw = ADC;
     }
     else
     {
@@ -240,11 +241,25 @@ uint16_t Adc_CheckInputVoltage()
     }
 
     // calculate it
-    voltage = (uint16_t)(((uint32_t)(ADC_VINTERNAL + ADC_INT_OFFSET) * ADC_MAX_RESOLUTION) / batteryVoltage); // in mV
+    voltage =
+        (uint16_t)(((uint32_t)(ADC_VINTERNAL + ADC_INT_OFFSET) * ADC_MAX_RESOLUTION) / batteryVoltageRaw); // in mV
 
     // go back to normal mode
     hAdc.status = eADC_STATUS_UNITIALIZED;
     Adc_Init();
 
+    batteryVoltage = voltage;
     return voltage;
+}
+
+/**
+ * @brief Returns battery or supply votlage.
+ *
+ * This functions does not check if the measurement was done.
+ *
+ * @return battery voltage in milivolts
+ */
+uint16_t Adc_GetSupplyVoltage()
+{
+    return batteryVoltage;
 }

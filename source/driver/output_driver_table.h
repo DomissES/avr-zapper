@@ -15,7 +15,9 @@
 
 // Target specific includes
 
-#define OUTPUT_DRIVER_TABLE_SIZE 100
+#define OUTPUT_DRIVER_TABLE_SIZE                     100
+#define OUTPUT_DRIVER_BATTERY_OFFSET_TABLE_SIZE      16
+#define OUTPUT_DRIVER_BATTERY_OFFSET_REFERENCE_INDEX 13
 
 /**
  * @brief This table consists ocr and prescaler values for specific frequency.
@@ -39,7 +41,23 @@ uint8_t outputDriver_table[OUTPUT_DRIVER_TABLE_SIZE][2] = {
  * @brief In case of other input voltage, change the overall range of Control input
  *
  */
-uint16_t outputDriver_BatteryOffsetTable[] =
-    {1.35, 1.32, 1.28, 1.25, 1.22, 1.19, 1.16, 1.14, 1.11, 1.09, 1.06, 1.04, 1.02, 1.00, 0.98, 0.96};
+uint16_t outputDriver_BatteryOffsetTable[] = {
+    754, // 3.7 V
+    774, // 3.8 V
+    796, // 3.9 V
+    816, // 4.0 V
+    836, // 4.1 V
+    858, // 4.2 V
+    878, // 4.3 V
+    898, // 4.4 V
+    920, // 4.5 V
+    939, // 4.6 V
+    959, // 4.7 V
+    980, // 4.8 V
+    998, // 4.9 V
+    998, // 5.0 V
+    998, // 5.1 V
+    998, // 5.2 V
+};
 
 #endif // OUTPUT_DRIVER_TABLE_H_

@@ -27,10 +27,9 @@
 // Private macro defines                                                                                             //
 //===================================================================================================================//
 
-// Used prescaler is 32
-#define OCR_CONSTANT         (F_CPU / (2 * 32))
+#define SUPPLY_REFERENCE_VOLTAGE 5000 // mV
 
-#define CONTROL_INPUT_OFFSET 25
+#define CONTROL_INPUT_OFFSET     25
 //===================================================================================================================//
 // Private definitions                                                                                               //
 //===================================================================================================================//
@@ -61,6 +60,23 @@ static void OutputDriver_privSetTimerPrescaler(uint8_t prescaler)
     {
         TimerHAL_StartTimer(eTIMER_2);
     }
+}
+
+static uint16_t OutputDriver_privGetControlInputMaxAdcValue()
+{
+    uint16_t voltage = Adc_GetSupplyVoltage();
+
+    int16_t error = SUPPLY_REFERENCE_VOLTAGE - voltage;
+    // Add 50 to better rounding to proper value (50 is half of 0.1 V resolution)
+    error                  = (error + 50) / 100;
+    int8_t correctionIndex = OUTPUT_DRIVER_BATTERY_OFFSET_REFERENCE_INDEX - error;
+
+    if(correctionIndex < 0)
+        correctionIndex = 0;
+    if(correctionIndex > OUTPUT_DRIVER_BATTERY_OFFSET_TABLE_SIZE)
+        correctionIndex = OUTPUT_DRIVER_BATTERY_OFFSET_TABLE_SIZE;
+
+    return outputDriver_BatteryOffsetTable[correctionIndex];
 }
 
 //===================================================================================================================//
@@ -153,11 +169,12 @@ void OutputDriver_SetFrequency(uint16_t frequency)
 /**
  * @brief Returns average of the control input potentiometer.
  *
- * @return Value from potentiometer from 0 to 1000
+ * @return Value from potentiometer from 0 to 99
  */
 uint16_t OutputDriver_GetControlInput()
 {
-    uint16_t voltage;
+    int32_t  controlInput = 0;
+    uint16_t maxAdcValue  = 0;
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
         uint32_t accum = 0;
@@ -169,8 +186,23 @@ uint16_t OutputDriver_GetControlInput()
 
         hOutput.rawControlInput = accum / OUTPUT_DRIVER_CONTROL_IN_SAMPLES;
     }
-    LOG_DEBUG("Raw control input is: %d", hOutput.rawControlInput);
-    hOutput.controlInput = (ADC_MAX_RESOLUTION - CONTROL_INPUT_OFFSET - hOutput.rawControlInput);
 
-    return hOutput.controlInput;
+    maxAdcValue = OutputDriver_privGetControlInputMaxAdcValue();
+    if(hOutput.rawControlInput > maxAdcValue)
+    {
+        hOutput.rawControlInput = maxAdcValue;
+    }
+
+    LOG_DEBUG("Raw control input is: %d", hOutput.rawControlInput);
+
+    controlInput = (maxAdcValue - hOutput.rawControlInput);
+    controlInput = (controlInput * 100) / maxAdcValue;
+
+    if(controlInput < 0)
+        controlInput = 0;
+    if(controlInput > 99)
+        controlInput = 99;
+    hOutput.controlInput = controlInput;
+
+    return controlInput;
 }
