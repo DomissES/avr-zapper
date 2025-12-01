@@ -110,6 +110,27 @@ static bool Gpio_privDebounce(Gpio_Debouncer_t *pButton, uint8_t currentValue)
     pButton->oldValue = currentValue;
 
     return changed;
+
+    /* Another implementation:
+    if(pButton->oldValue != currentValue)
+    {
+    pButton->oldValue = currentValue;
+    pButton->counter  = GPIO_DEBOUNCE_TIME;
+    }
+
+    if((pButton->counter) == 0)
+    {
+    pButton->debouncedValue = pButton->oldValue;
+    pButton->ValidCounter = GPIO_VALID_COUNTER;
+    }
+
+    if(pButton->ValidCounter)
+    {
+    pButton->ValidCounter--;
+    }
+    
+    pButton->counter--;
+    */
 }
 
 //===================================================================================================================//

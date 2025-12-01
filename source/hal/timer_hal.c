@@ -273,6 +273,6 @@ void TimerHAL_SetPrescaler(Timer_index_e timer, uint8_t prescaler)
 {
     (void)timer;
 
-    ASSERT((prescaler > 7) || (prescaler < 0));
+    ASSERT(!((prescaler > 7) && (prescaler < 0)));
     hTimer2.usedPrescaler = prescaler;
 }

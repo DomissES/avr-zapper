@@ -155,7 +155,7 @@ void OutputDriver_SetFrequency(uint16_t frequency)
     }
 
     // ========================================================================
-    ASSERT((frequency < 1) || (frequency > OUTPUT_DRIVER_TABLE_SIZE));
+    ASSERT(!((frequency < 1) && (frequency > OUTPUT_DRIVER_TABLE_SIZE)));
 
     hOutput.setFrequency = frequency;
 

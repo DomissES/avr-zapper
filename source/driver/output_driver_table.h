@@ -25,7 +25,7 @@
  * Second row is the prescaler (3 for 32, 2 for 8, 1 for 1)
  *
  */
-uint8_t outputDriver_table[OUTPUT_DRIVER_TABLE_SIZE][2] = {
+const uint8_t outputDriver_table[OUTPUT_DRIVER_TABLE_SIZE][2] = {
     {124, 3}, {249, 2}, {165, 2}, {124, 2}, {99, 2},  {82, 2},  {70, 2},  {61, 2},  {55, 2},  {49, 2},
     {44, 2},  {41, 2},  {37, 2},  {35, 2},  {32, 2},  {249, 1}, {234, 1}, {221, 1}, {210, 1}, {199, 1},
     {189, 1}, {181, 1}, {173, 1}, {166, 1}, {159, 1}, {153, 1}, {147, 1}, {142, 1}, {137, 1}, {132, 1},
@@ -41,7 +41,7 @@ uint8_t outputDriver_table[OUTPUT_DRIVER_TABLE_SIZE][2] = {
  * @brief In case of other input voltage, change the overall range of Control input
  *
  */
-uint16_t outputDriver_BatteryOffsetTable[] = {
+const uint16_t outputDriver_BatteryOffsetTable[] = {
     754, // 3.7 V
     774, // 3.8 V
     796, // 3.9 V
