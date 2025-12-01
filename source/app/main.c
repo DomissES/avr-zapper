@@ -51,8 +51,11 @@ typedef enum
     eMAIN_STATE_ERROR,
 } Main_states_e;
 
-Main_states_e mainState = eMAIN_STATE_INIT;
-Main_states_e previousState = eMAIN_STATE_INIT;
+Main_states_e currentState = eMAIN_STATE_INIT;
+Main_states_e oldState     = eMAIN_STATE_INIT;
+Main_states_e nextState    = eMAIN_STATE_INIT;
+
+uint16_t gOutputVoltage = DCDC_MIN_OUTPUT_VOLTAGE;
 
 //===================================================================================================================//
 // App function declarations                                                                                         //
@@ -93,40 +96,58 @@ int main(void)
     uint8_t number = 0;
 
     uint16_t setVoltage = 5000;
-    Adc_Perform();
+
     OutputDriver_SetFrequency(100);
     uint16_t tempOCR;
-    OutputDriver_Enable();
+
+    uint16_t timer        = 5; // ~ 10 ms
+    uint32_t oldTimestamp = timestamp;
 
     while(1)
     {
         // Main switching for application state machine
-        switch(mainState)
+        switch(currentState)
         {
         case eMAIN_STATE_INIT:
-            mainState = Main_Init();
+            nextState = Main_Init();
             break;
 
         case eMAIN_STATE_SELECT_FREQ:
-            mainState = Main_SelectFreq();
+            nextState = Main_SelectFreq();
             break;
 
         case eMAIN_STATE_SHOW_VOLTAGE:
-            mainState = Main_ShowVoltage();
+            nextState = Main_ShowVoltage();
             break;
 
         case eMAIN_STATE_WORK:
-            mainState = Main_Work();
+            nextState = Main_Work();
             break;
 
         case eMAIN_STATE_ERROR:
-            mainState = Main_Error();
+            nextState = Main_Error();
             break;
 
         default:
-            mainState = eMAIN_STATE_ERROR;
+            nextState = eMAIN_STATE_ERROR;
             break;
         }
+
+        // added second buffer for states due to better working of function Main_IsNewState()
+        oldState     = currentState;
+        currentState = nextState;
+
+        while(timer != 0)
+        {
+            if(oldTimestamp != timestamp)
+            {
+                timer--;
+                oldTimestamp = timestamp;
+            }
+        }
+        timer = 5;
+
+        DcdcDriver_Perform();
     }
 
     return 0;
@@ -136,9 +157,9 @@ int main(void)
 // Application help functions                                                                                        //
 //===================================================================================================================//
 
-static bool Main_HasEnteredState()
+static bool Main_IsNewState()
 {
-    return( mainState == previousState) ? true : false;
+    return (currentState != oldState) ? true : false;
 }
 
 //===================================================================================================================//
@@ -147,13 +168,13 @@ static bool Main_HasEnteredState()
 
 static void MainInit_BlinkLed()
 {
-    for(uint8_t i = 0; i < 2; i++)
+    for(uint8_t i = 0; i < 4; i++)
     {
         GPIO_OUT_LED_A_ENABLE();
         GPIO_OUT_LED_B_ENABLE();
         GPIO_OUT_LED_C_ENABLE();
         _delay_ms(250);
-        
+
         GPIO_OUT_LED_A_DISABLE();
         GPIO_OUT_LED_B_DISABLE();
         GPIO_OUT_LED_C_DISABLE();
@@ -198,11 +219,12 @@ static Main_states_e Main_Init()
     }
 
     // Test is Ok;
+    DisplayDriver_SetNumber(voltage / 100);
     MainInit_BlinkLed();
-    return eMAIN_STATE_SELECT_FREQ;
+    Adc_Perform();
 
+    return eMAIN_STATE_SHOW_VOLTAGE;
 }
-
 
 //===================================================================================================================//
 // Application functions                                                                                             //
@@ -215,7 +237,6 @@ static Main_states_e Main_Init()
  */
 static Main_states_e Main_ShowLowBattery() {}
 
-
 //===================================================================================================================//
 // Application functions                                                                                             //
 //===================================================================================================================//
@@ -227,13 +248,33 @@ static Main_states_e Main_ShowLowBattery() {}
  */
 static Main_states_e Main_SelectFreq()
 {
+    Main_states_e state = eMAIN_STATE_SELECT_FREQ;
+    uint8_t       selectedFrequency;
 
+    if(Main_IsNewState())
+    {
+        DisplayDriver_SetMode(eDISPLAY_MODE_ON);
+        GPIO_OUT_LED_A_ENABLE();
+    }
+
+    selectedFrequency = OutputDriver_GetControlInput();
+    DisplayDriver_SetNumber(selectedFrequency);
 
     // Go to work
+    if(Gpio_GetButton(GPIO_BUTTON_A) == eBUTTON_STATUS_PRESSED)
+    {
+        GPIO_OUT_LED_A_DISABLE();
+        state = eMAIN_STATE_WORK;
+    }
 
     // Change output voltage
-}
+    if(Gpio_GetButton(GPIO_BUTTON_B) == eBUTTON_STATUS_PRESSED)
+    {
+        state = eMAIN_STATE_SHOW_VOLTAGE;
+    }
 
+    return state;
+}
 
 //===================================================================================================================//
 // Application functions                                                                                             //
@@ -244,8 +285,33 @@ static Main_states_e Main_SelectFreq()
  *
  * @return eMAIN_STATE_SELECT_FREQ,
  */
-static Main_states_e Main_ShowVoltage() {}
+static Main_states_e Main_ShowVoltage()
+{
+    Main_states_e   state = eMAIN_STATE_SHOW_VOLTAGE;
+    static uint16_t timer;
 
+    // Increase again voltage if button was pressed in this state
+    if(Main_IsNewState() || (Gpio_GetButton(GPIO_BUTTON_B) == eBUTTON_STATUS_PRESSED))
+    {
+        timer = 200; // ~2s
+        gOutputVoltage += 5000;
+        DisplayDriver_SetMode(eDISPLAY_MODE_BLINKING);
+
+        if(gOutputVoltage > DCDC_MAX_OUTPUT_VOLTAGE)
+            gOutputVoltage = DCDC_MIN_OUTPUT_VOLTAGE;
+        // TODO:: move votlages to system settings
+    }
+
+    DisplayDriver_SetNumber(gOutputVoltage / 1000);
+
+    timer--;
+    if(timer == 0)
+    {
+        state = eMAIN_STATE_SELECT_FREQ;
+    }
+
+    return state;
+}
 
 //===================================================================================================================//
 // Application functions                                                                                             //
@@ -258,10 +324,28 @@ static Main_states_e Main_ShowVoltage() {}
  */
 static Main_states_e Main_Work()
 {
-    DcdcDriver_Enable(true);
-    OutputDriver_Init();
-}
+    Main_states_e state = eMAIN_STATE_WORK;
+    // Enter state
+    if(Main_IsNewState())
+    {
+        DcdcDriver_SetVoltage(gOutputVoltage);
+        DcdcDriver_Enable(true);
+        OutputDriver_Init();
+        OutputDriver_Enable();
+        GPIO_OUT_LED_B_ENABLE();
+    }
 
+    // Exit state
+    if(Gpio_GetButton(GPIO_BUTTON_A) == eBUTTON_STATUS_PRESSED)
+    {
+        DcdcDriver_Enable(false);
+        OutputDriver_Disable();
+        GPIO_OUT_LED_B_DISABLE();
+        state = eMAIN_STATE_SELECT_FREQ;
+    }
+
+    return state;
+}
 
 //===================================================================================================================//
 // Application functions                                                                                             //
@@ -272,4 +356,13 @@ static Main_states_e Main_Work()
  *
  * @return eMAIN_STATE_ERROR
  */
-static Main_states_e Main_Error() {}
+static Main_states_e Main_Error()
+{
+    Main_states_e state = eMAIN_STATE_ERROR;
+    uint16_t      timer = 2000;
+
+    GPIO_OUT_LED_C_ENABLE();
+    DisplayDriver_SetSpecial(eDISPLAY_DIGIT_ERROR);
+
+    return state;
+}

@@ -14,7 +14,7 @@
 // Uart related
 #define UART_BAUDRATE                    57600
 
-#define LOG_LEVEL                        4
+#define LOG_LEVEL                        3
 #define LOG_PRINTF_FUNC(...)             UartPrintf_Printf(__VA_ARGS__)
 #define UART_PRINTF_BUFFER_SIZE          96
 #define LOG_SHOW_FUNCTION_LINES          1
@@ -40,10 +40,10 @@
 #define DCDC_MIN_OUTPUT_VOLTAGE          5000  // mV
 
 // Display Driver related
-#define DISPLAY_BLINKING_PERIOD          2048
+#define DISPLAY_BLINKING_PERIOD          128
 
 // Gpio related
-#define GPIO_DEBOUNCE_TIME               128
+#define GPIO_DEBOUNCE_TIME               4
 
 // Output driver related
 #define OUTPUT_DRIVER_MIN_FREQUENCY      1   // kHz
@@ -52,6 +52,6 @@
 #define OUTPUT_DRIVER_CONTROL_IN_SAMPLES 8
 
 // Battery check related
-#define BATTERY_LOW_THRESHOLD           3300 // mV
+#define BATTERY_LOW_THRESHOLD            3300 // mV
 
 #endif // SYSTEM_SETTINGS_H_
