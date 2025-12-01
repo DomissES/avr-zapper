@@ -51,4 +51,7 @@
 
 #define OUTPUT_DRIVER_CONTROL_IN_SAMPLES 8
 
+// Battery check related
+#define BATTERY_LOW_THRESHOLD           3300 // mV
+
 #endif // SYSTEM_SETTINGS_H_
