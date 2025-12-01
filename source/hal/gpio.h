@@ -16,9 +16,47 @@
 // File specific includes
 #include "pinConfig.h"
 
+#include "global_defines.h"
+#include "system_settings.h"
+
 // Target specific includes
 #include <avr/io.h>
 
+//===================================================================================================================//
+// Public typedefs                                                                                                   //
+//===================================================================================================================//
+
+typedef enum
+{
+    eGPIO_BUTTON_A,
+    eGPIO_BUTTON_B
+} Gpio_ButtonInstance_e;
+typedef enum
+{
+    eBUTTON_STATUS_IDLE,
+    eBUTTON_STATUS_PRESSED,
+    eBUTTON_STATUS_RELEASED
+} Gpio_ButtonStatus_e;
+
+typedef volatile struct
+{
+    uint8_t oldValue;
+    uint8_t debouncedValue;
+    uint8_t counter;
+    bool counting;
+} Gpio_Debouncer_t;
+typedef volatile struct
+{
+    Gpio_Debouncer_t    debounce;
+    Gpio_ButtonStatus_e status;
+    bool                input;
+} Gpio_Button_t;
+
+//===================================================================================================================//
+// Public variables                                                                                                  //
+//===================================================================================================================//
+
+extern Gpio_Button_t hButton[2];
 //===================================================================================================================//
 // Macro for pin manipulation                                                                                        //
 //===================================================================================================================//
@@ -114,6 +152,14 @@
 //===================================================================================================================//
 
 /**
+ * @brief Performs debouncing of buttons.
+ *
+ * At best run it periodically.
+ *
+ */
+void Gpio_ButtonsPerform();
+
+/**
  * @brief Initializes all GPIO pins and sets their initial states.
  *
  *  This function is specific to current hardware configuration. Refer to the documentation for details.
@@ -124,8 +170,19 @@
 void Gpio_InitAll();
 
 /**
+ * @brief Return current status of button
+ *
+ * Available statuses are Pressed, Release, Idle. If it was pressed or release and this function was called, the status
+ * gets back to idle. It takes the debounced value.
+ *
+ * @param pButton pointer to the Button object.
+ * @return Idle, Pressed, Released.
+ */
+Gpio_ButtonStatus_e Gpio_GetButton(Gpio_Button_t *pButton);
+
+/**
  * @brief Function which enables sequentally all leds to check if they are all working
- * 
+ *
  */
 void Gpio_TestAll();
 

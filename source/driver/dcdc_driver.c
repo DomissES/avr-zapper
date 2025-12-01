@@ -72,7 +72,7 @@ static uint16_t DcdcDriver_privConvertVoltage(uint16_t rawVoltage)
 
 static uint8_t DcdcDriver_privRegulateOutput(uint16_t setVoltage, uint16_t actualVoltage)
 {
-    int16_t error = actualVoltage - setVoltage;
+    int16_t        error = actualVoltage - setVoltage;
     static int16_t integral;
     integral += error;
 
@@ -87,10 +87,10 @@ static uint8_t DcdcDriver_privRegulateOutput(uint16_t setVoltage, uint16_t actua
 
     int16_t output = -((error / 32) + (integral / 512)); // simple P controller with Kp = 0.01
 
-    if(output > 4*DCDC_TIMER_MAX_OCR)
-        output = 4*DCDC_TIMER_MAX_OCR;
-    if(output < 4*DCDC_TIMER_MIN_OCR)
-        output = 4*DCDC_TIMER_MIN_OCR;
+    if(output > 4 * DCDC_TIMER_MAX_OCR)
+        output = 4 * DCDC_TIMER_MAX_OCR;
+    if(output < 4 * DCDC_TIMER_MIN_OCR)
+        output = 4 * DCDC_TIMER_MIN_OCR;
 
     return (uint8_t)output;
 }
@@ -139,7 +139,7 @@ uint8_t DcdcDriver_privPerformOutSequence()
  *
  * If there are enough samples, the function omits new samples until the value is processed in DcDcDriver_Perform.
  *
- * @param measurement
+ * @param measurement Input value to be processed
  */
 void DcdcDriver_ProcessMeasurement(uint16_t measurement)
 {

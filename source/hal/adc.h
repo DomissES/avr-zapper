@@ -5,7 +5,8 @@
  * @brief Header file for adc converter
  * This project uses two channels of adc, one for control in and one for dcdc. This module provides basic initialization
  * and measurement functions.
- * Additional function is the check voltage function. It is meant to call it only at the very beginning of whole application.
+ * Additional function is the check voltage function. It is meant to call it only at the very beginning of whole
+ * application.
  *
  * @author domis
  * @date 07.11.2025
@@ -32,9 +33,9 @@
 
 typedef enum
 {
-    eADC_CHANNEL_DC_DC_FB = 0,
+    eADC_CHANNEL_DC_DC_FB   = 0,
     eADC_CHANNEL_CONTROL_IN = 1,
-    eADC_CHANNEL_NONE = 0xFF
+    eADC_CHANNEL_NONE       = 0xFF
 } Adc_Instance_e;
 
 typedef enum
@@ -86,10 +87,10 @@ void Adc_Init();
 
 /**
  * @brief Checks if adc is initialized
- * 
+ *
  * @return true if initialized, false otherwise
  */
- bool Adc_IsInitialized();
+bool Adc_IsInitialized();
 
 /**
  * @brief Realizes the ADC measurement.
@@ -102,6 +103,14 @@ void Adc_Init();
 bool Adc_Perform();
 
 /**
+ * @brief Returns last measurement
+ *
+ * @param channel Channel to get the measure from
+ * @return last measurement
+ */
+uint16_t Adc_GetLastMeasurement(Adc_Instance_e channel);
+
+/**
  * @brief Checks the input voltage by measuring the internal bandgap reference.
  *
  * This function is intended to use only once, at system initialization.
@@ -109,5 +118,14 @@ bool Adc_Perform();
  * @return battery voltage in milivolts
  */
 uint16_t Adc_CheckInputVoltage();
+
+/**
+ * @brief Returns battery or supply votlage.
+ *
+ * This functions does not check if the measurement was done.
+ *
+ * @return battery voltage in milivolts
+ */
+uint16_t Adc_GetSupplyVoltage();
 
 #endif // ADC_H_

@@ -5,7 +5,8 @@
  * @brief Source file for adc
  * This project uses two channels of adc, one for control in and one for dcdc. This module provides basic initialization
  * and measurement functions.
- * Additional function is the check voltage function. It is meant to call it only at the very beginning of whole application.
+ * Additional function is the check voltage function. It is meant to call it only at the very beginning of whole
+ * application.
  *
  * @author domis
  * @date 07.11.2025
@@ -75,8 +76,9 @@ typedef struct
 Adc_Channel_t adc_DcdcChannel    = ADC_CHANNEL_INIT_STRUCT();
 Adc_Channel_t adc_ControlChannel = ADC_CHANNEL_INIT_STRUCT();
 
-volatile Adc_HAL_t hAdc = ADC_HAL_INIT_STRUCT();
-volatile uint16_t  batteryVoltage;
+volatile Adc_HAL_t hAdc              = ADC_HAL_INIT_STRUCT();
+volatile uint16_t  batteryVoltageRaw = 0;
+uint16_t           batteryVoltage    = 0;
 
 //===================================================================================================================//
 // ISR functions                                                                                                     //
@@ -100,7 +102,7 @@ ISR(ADC_vect)
 
     if(hAdc.status == eADC_STATUS_CHECK_VOLTAGE)
     {
-        batteryVoltage = ADC;
+        batteryVoltageRaw = ADC;
     }
     else
     {
@@ -203,6 +205,17 @@ bool Adc_Perform()
 }
 
 /**
+ * @brief Returns last measurement
+ *
+ * @param channel Channel to get the measure from
+ * @return last measurement
+ */
+uint16_t Adc_GetLastMeasurement(Adc_Instance_e channel)
+{
+    return hAdc.channel[channel]->lastMeasurement;
+}
+
+/**
  * @brief Checks the input voltage by measuring the internal bandgap reference.
  *
  * This function is intended to use only once, at system initialization.
@@ -228,11 +241,25 @@ uint16_t Adc_CheckInputVoltage()
     }
 
     // calculate it
-    voltage = (uint16_t)(((uint32_t)(ADC_VINTERNAL + ADC_INT_OFFSET) * ADC_MAX_RESOLUTION) / batteryVoltage); // in mV
+    voltage =
+        (uint16_t)(((uint32_t)(ADC_VINTERNAL + ADC_INT_OFFSET) * ADC_MAX_RESOLUTION) / batteryVoltageRaw); // in mV
 
     // go back to normal mode
     hAdc.status = eADC_STATUS_UNITIALIZED;
     Adc_Init();
 
+    batteryVoltage = voltage;
     return voltage;
+}
+
+/**
+ * @brief Returns battery or supply votlage.
+ *
+ * This functions does not check if the measurement was done.
+ *
+ * @return battery voltage in milivolts
+ */
+uint16_t Adc_GetSupplyVoltage()
+{
+    return batteryVoltage;
 }

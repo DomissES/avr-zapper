@@ -25,7 +25,8 @@
         "adc.h": "c",
         "system_settings.h": "c",
         "global_defines.h": "c",
-        "dcdc_driver.h": "c"
+        "dcdc_driver.h": "c",
+        "display_driver.h": "c"
     },
     "cmake.sourceDirectory": "${workspaceFolder}",
     "C_Cpp.codeAnalysis.clangTidy.enabled": true,
