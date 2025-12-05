@@ -239,5 +239,4 @@ void DcdcDriver_Perform()
     TimerHAL_SetOCR(eTIMER_1, hDcdc.output.dutyCycle);
 
     //LOG_DEBUG("Current duty cycle is: %d\t out of range: %d", hDcdc.output.raw, voltageOutOfRange);
-    PORTB ^= _BV(PB7);
 }

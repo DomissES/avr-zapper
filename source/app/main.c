@@ -44,7 +44,7 @@ Adc_Channel_t g_channel[2];
 typedef enum
 {
     eMAIN_STATE_INIT,
-    eMAIN_SHOW_LOW_BAT,
+    eMAIN_STATE_SHOW_LOW_BAT,
     eMAIN_STATE_SELECT_FREQ,
     eMAIN_STATE_SHOW_VOLTAGE,
     eMAIN_STATE_WORK,
@@ -55,8 +55,8 @@ Main_states_e currentState = eMAIN_STATE_INIT;
 Main_states_e oldState     = eMAIN_STATE_INIT;
 Main_states_e nextState    = eMAIN_STATE_INIT;
 
-uint16_t gOutputVoltage = DCDC_MIN_OUTPUT_VOLTAGE;
-uint8_t       gSelectedFrequency = 0;
+uint16_t gOutputVoltage     = DCDC_MIN_OUTPUT_VOLTAGE;
+uint8_t  gSelectedFrequency = 0;
 
 //===================================================================================================================//
 // App function declarations                                                                                         //
@@ -113,6 +113,10 @@ int main(void)
             nextState = Main_Init();
             break;
 
+        case eMAIN_STATE_SHOW_LOW_BAT:
+            nextState = Main_ShowLowBattery();
+            break;
+
         case eMAIN_STATE_SELECT_FREQ:
             nextState = Main_SelectFreq();
             break;
@@ -148,7 +152,6 @@ int main(void)
             DcdcDriver_Perform(); // Do this function always
         }
         timer = 5;
-
     }
 
     return 0;
@@ -216,7 +219,7 @@ static Main_states_e Main_Init()
 
     if(voltage < BATTERY_LOW_THRESHOLD)
     {
-        return eMAIN_SHOW_LOW_BAT;
+        return eMAIN_STATE_SHOW_LOW_BAT;
     }
 
     // Test is Ok;
@@ -236,7 +239,64 @@ static Main_states_e Main_Init()
  *
  * @return eMAIN_STATE_ERROR
  */
-static Main_states_e Main_ShowLowBattery() {}
+static Main_states_e Main_ShowLowBattery()
+{
+    Main_states_e                state     = eMAIN_STATE_SHOW_LOW_BAT;
+    static uint16_t              timer     = 300; // ~3s
+    DisplayDriver_SpecialDigit_e lastDigit = eDISPLAY_DIGIT_BATTERY_LOW;
+    typedef enum
+    {
+        eChangeToLow,
+        eChangeToBa,
+        eWaitForDisplayOff,
+        eWaitForDisplayOn
+    } localState_e;
+    static localState_e localState;
+    static localState_e prevLocalState;
+
+    if(Main_IsNewState())
+    {
+        localState = eChangeToLow;
+        DisplayDriver_SetMode(eDISPLAY_MODE_BLINKING);
+    }
+
+    switch(localState)
+    {
+    case eChangeToLow:
+        DisplayDriver_SetSpecial(eDISPLAY_DIGIT_BATTERY_LOW);
+        prevLocalState = eChangeToLow;
+        localState     = eWaitForDisplayOn;
+        break;
+    case eChangeToBa:
+        DisplayDriver_SetSpecial(eDISPLAY_DIGIT_BATTERY);
+        prevLocalState = eChangeToBa;
+        localState     = eWaitForDisplayOn;
+        break;
+    case eWaitForDisplayOff:
+        if(DisplayDriver_IsPowered() == 0)
+        {
+            if(prevLocalState == eChangeToBa)
+                localState = eChangeToLow;
+            else
+                localState = eChangeToBa;
+        }
+        break;
+    case eWaitForDisplayOn:
+        if(DisplayDriver_IsPowered())
+            localState = eWaitForDisplayOff;
+        break;
+    default:
+        state = eMAIN_STATE_ERROR;
+        break;
+    }
+
+    timer--;
+    if(timer == 0)
+    {
+        state = eMAIN_STATE_ERROR;
+    }
+    return state;
+}
 
 //===================================================================================================================//
 // Application functions                                                                                             //
@@ -250,7 +310,6 @@ static Main_states_e Main_ShowLowBattery() {}
 static Main_states_e Main_SelectFreq()
 {
     Main_states_e state = eMAIN_STATE_SELECT_FREQ;
-    
 
     if(Main_IsNewState())
     {
@@ -294,7 +353,7 @@ static Main_states_e Main_ShowVoltage()
     // Increase again voltage if button was pressed in this state
     if(Main_IsNewState() || (Gpio_GetButton(GPIO_BUTTON_B) == eBUTTON_STATUS_PRESSED))
     {
-        timer = 200; // ~2s
+        timer = 150; // ~1.5s
         gOutputVoltage += 5000;
         DisplayDriver_SetMode(eDISPLAY_MODE_BLINKING);
 
@@ -363,6 +422,7 @@ static Main_states_e Main_Error()
     Main_states_e state = eMAIN_STATE_ERROR;
     uint16_t      timer = 2000;
 
+    DisplayDriver_SetMode(eDISPLAY_MODE_ON);
     GPIO_OUT_LED_C_ENABLE();
     DisplayDriver_SetSpecial(eDISPLAY_DIGIT_ERROR);
 

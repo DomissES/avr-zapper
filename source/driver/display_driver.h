@@ -57,5 +57,7 @@ void DisplayDriver_SetNumber(uint8_t number);
 
 void DisplayDriver_SetSpecial(DisplayDriver_SpecialDigit_e digit);
 
+bool DisplayDriver_IsPowered();
+
 
 #endif // DISPLAY_DRIVER_H_
