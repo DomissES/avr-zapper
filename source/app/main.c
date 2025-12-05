@@ -56,6 +56,7 @@ Main_states_e oldState     = eMAIN_STATE_INIT;
 Main_states_e nextState    = eMAIN_STATE_INIT;
 
 uint16_t gOutputVoltage = DCDC_MIN_OUTPUT_VOLTAGE;
+uint8_t       gSelectedFrequency = 0;
 
 //===================================================================================================================//
 // App function declarations                                                                                         //
@@ -144,10 +145,10 @@ int main(void)
                 timer--;
                 oldTimestamp = timestamp;
             }
+            DcdcDriver_Perform(); // Do this function always
         }
         timer = 5;
 
-        DcdcDriver_Perform();
     }
 
     return 0;
@@ -249,7 +250,7 @@ static Main_states_e Main_ShowLowBattery() {}
 static Main_states_e Main_SelectFreq()
 {
     Main_states_e state = eMAIN_STATE_SELECT_FREQ;
-    uint8_t       selectedFrequency;
+    
 
     if(Main_IsNewState())
     {
@@ -257,8 +258,8 @@ static Main_states_e Main_SelectFreq()
         GPIO_OUT_LED_A_ENABLE();
     }
 
-    selectedFrequency = OutputDriver_GetControlInput();
-    DisplayDriver_SetNumber(selectedFrequency);
+    gSelectedFrequency = OutputDriver_GetControlInput();
+    DisplayDriver_SetNumber(gSelectedFrequency);
 
     // Go to work
     if(Gpio_GetButton(GPIO_BUTTON_A) == eBUTTON_STATUS_PRESSED)
@@ -331,6 +332,7 @@ static Main_states_e Main_Work()
         DcdcDriver_SetVoltage(gOutputVoltage);
         DcdcDriver_Enable(true);
         OutputDriver_Init();
+        OutputDriver_SetFrequency(gSelectedFrequency);
         OutputDriver_Enable();
         GPIO_OUT_LED_B_ENABLE();
     }
