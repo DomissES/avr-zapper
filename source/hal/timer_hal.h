@@ -95,6 +95,8 @@ extern Timer_0_HAL_t hTimer0;
 extern Timer_1_HAL_t hTimer1;
 extern Timer_2_HAL_t hTimer2;
 
+extern volatile uint32_t timestamp;
+
 //===================================================================================================================//
 // Public functions                                                                                                  //
 //===================================================================================================================//
@@ -121,7 +123,7 @@ extern Timer_2_HAL_t hTimer2;
 /**
  * @brief Disables OCR output for Timer 2
  */
-#define TIMER_HAL_DISABLE_OCR2() TCCR2 &= ~(_BV(COM21) & _BV(COM21))
+#define TIMER_HAL_DISABLE_OCR2() TCCR2 &= ~(_BV(COM20))
 
 /**
  * @brief Callback function for timer 0 overlow.

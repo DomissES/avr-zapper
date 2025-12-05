@@ -60,7 +60,7 @@
 #define TIMER_0_1_PRESCALER_256  4
 #define TIMER_0_1_PRESCALER_1024 5
 
-#define TIMER_0_USED_PRESCALER   TIMER_0_1_PRESCALER_8
+#define TIMER_0_USED_PRESCALER   TIMER_0_1_PRESCALER_64
 #define TIMER_1_USED_PRESCALER   TIMER_0_1_PRESCALER_1
 
 #define TIMER_2_PRESCALER_1      1
@@ -74,18 +74,6 @@
 #define TIMER_2_USED_PRESCALER   TIMER_2_PRESCALER_32
 
 //===================================================================================================================//
-// Timer interrupts definitions                                                                                      //
-//===================================================================================================================//
-__weak void TimerHAL_Timer0_OverflowCallback()
-{
-    ;
-}
-
-ISR(TIMER0_OVF_vect)
-{
-    TimerHAL_Timer0_OverflowCallback();
-}
-//===================================================================================================================//
 // Private definitions                                                                                               //
 //===================================================================================================================//
 
@@ -96,6 +84,24 @@ ISR(TIMER0_OVF_vect)
 Timer_0_HAL_t hTimer0;
 Timer_1_HAL_t hTimer1;
 Timer_2_HAL_t hTimer2;
+
+volatile uint32_t timestamp = 0;
+
+//===================================================================================================================//
+// Timer interrupts definitions                                                                                      //
+//===================================================================================================================//
+__weak void TimerHAL_Timer0_OverflowCallback()
+{
+    ;
+}
+
+ISR(TIMER0_OVF_vect)
+{
+    // Overflow is around 490 Hz
+    timestamp++;
+    TimerHAL_Timer0_OverflowCallback();
+}
+
 //===================================================================================================================//
 // Public functions                                                                                                  //
 //===================================================================================================================//
@@ -238,6 +244,7 @@ bool TimerHAL_IsTimerEnabled(Timer_index_e timer)
         return false;
         break;
     }
+    return false;
 }
 
 /**

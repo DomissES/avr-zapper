@@ -81,14 +81,15 @@ void DisplayDriver_privSetGpioDigit(uint8_t digit)
 bool DisplayDriver_privToggleBlinking()
 {
     static uint16_t timer;
+    static bool blink;
 
     if((timer >= DISPLAY_BLINKING_PERIOD))
     {
-        display.powered ^= 1;
+        blink ^= 1;
         timer = 0;
     }
     timer++;
-    return display.powered;
+    return blink;
 }
 
 bool DisplayDriver_privGetPowerMode()
@@ -96,10 +97,13 @@ bool DisplayDriver_privGetPowerMode()
     switch(display.activeMode)
     {
     case eDISPLAY_MODE_OFF:
+        display.powered = false;
         return 0;
-    case eDISPLAY_MODE_BLINKING:
-        return DisplayDriver_privToggleBlinking();
-    case eDISPLAY_MODE_ON:
+        case eDISPLAY_MODE_BLINKING:
+        display.powered = DisplayDriver_privToggleBlinking();
+        return display.powered;
+        case eDISPLAY_MODE_ON:
+        display.powered = true;
         return 1;
     }
 
@@ -179,4 +183,9 @@ void DisplayDriver_SetSpecial(DisplayDriver_SpecialDigit_e digit)
     default:
         break;
     }
+}
+
+bool DisplayDriver_IsPowered()
+{
+    return display.powered;
 }
