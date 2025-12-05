@@ -244,6 +244,7 @@ bool TimerHAL_IsTimerEnabled(Timer_index_e timer)
         return false;
         break;
     }
+    return false;
 }
 
 /**

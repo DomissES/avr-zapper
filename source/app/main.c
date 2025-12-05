@@ -94,12 +94,7 @@ int main(void)
      *
      */
 
-    uint8_t number = 0;
-
-    uint16_t setVoltage = 5000;
-
     OutputDriver_SetFrequency(100);
-    uint16_t tempOCR;
 
     uint16_t timer        = 5; // ~ 10 ms
     uint32_t oldTimestamp = timestamp;
@@ -241,9 +236,8 @@ static Main_states_e Main_Init()
  */
 static Main_states_e Main_ShowLowBattery()
 {
-    Main_states_e                state     = eMAIN_STATE_SHOW_LOW_BAT;
-    static uint16_t              timer     = 300; // ~3s
-    DisplayDriver_SpecialDigit_e lastDigit = eDISPLAY_DIGIT_BATTERY_LOW;
+    Main_states_e   state = eMAIN_STATE_SHOW_LOW_BAT;
+    static uint16_t timer = 300; // ~3s
     typedef enum
     {
         eChangeToLow,
@@ -420,7 +414,6 @@ static Main_states_e Main_Work()
 static Main_states_e Main_Error()
 {
     Main_states_e state = eMAIN_STATE_ERROR;
-    uint16_t      timer = 2000;
 
     DisplayDriver_SetMode(eDISPLAY_MODE_ON);
     GPIO_OUT_LED_C_ENABLE();

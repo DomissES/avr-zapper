@@ -68,7 +68,7 @@ static uint16_t DcdcDriver_privConvertVoltage(uint16_t rawVoltage)
     // Added +1 for divide optimization
     // TODO:: add better equation (not empirical and taken from excel)
     // y = Ax + B ==> x = (y - B) / A
-    uint32_t temp = 1000*((uint32_t)rawVoltage - DCDC_INPUT_COEFFICIENT_B) / DCDC_INPUT_COEFFICIENT_A;
+    uint32_t temp = 1000 * ((uint32_t)rawVoltage - DCDC_INPUT_COEFFICIENT_B) / DCDC_INPUT_COEFFICIENT_A;
     return (uint16_t)temp;
 }
 
@@ -211,7 +211,6 @@ uint16_t DcdcDriver_GetVoltage()
 
 void DcdcDriver_Perform()
 {
-    static uint16_t voltageOutOfRange;
 
     // get actual voltage
     if(hDcdc.averaging.samples == DCDC_TIMER_AVERAGING_SAMPLES)
@@ -225,8 +224,8 @@ void DcdcDriver_Perform()
             hDcdc.averaging.samples = 0;
             hDcdc.averaging.accum   = 0;
         }
-        //LOG_DEBUG("DCDC Missed samples: %d", hDcdc.averaging.missedSamples);
-        // LOG_DEBUG("Raw voltage is: %d", hDcdc.actualRawVoltage);
+        // LOG_DEBUG("DCDC Missed samples: %d", hDcdc.averaging.missedSamples);
+        //  LOG_DEBUG("Raw voltage is: %d", hDcdc.actualRawVoltage);
         hDcdc.averaging.missedSamples = 0;
         hDcdc.actualVoltage           = DcdcDriver_privConvertVoltage(hDcdc.actualRawVoltage);
     }
@@ -238,5 +237,5 @@ void DcdcDriver_Perform()
     DcdcDriver_privPerformOutSequence();
     TimerHAL_SetOCR(eTIMER_1, hDcdc.output.dutyCycle);
 
-    //LOG_DEBUG("Current duty cycle is: %d\t out of range: %d", hDcdc.output.raw, voltageOutOfRange);
+    // LOG_DEBUG("Current duty cycle is: %d\t out of range: %d", hDcdc.output.raw, voltageOutOfRange);
 }

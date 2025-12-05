@@ -139,7 +139,6 @@ void OutputDriver_Disable()
  */
 void OutputDriver_SetFrequency(uint16_t frequency)
 {
-    uint32_t ocr;
 
     if(frequency == 0)
     {
