@@ -30,10 +30,12 @@
 #define DCDC_TIMER_OCR_VALUE             64
 
 #define DCDC_TIMER_MIN_OCR               0
-#define DCDC_TIMER_MAX_OCR               16
+#define DCDC_TIMER_MAX_OCR               32
 #define DCDC_TIMER_AVERAGING_SAMPLES     16
 
-#define DCDC_INPUT_VOLTAGE_DIVIDER       12
+#define DCDC_INPUT_COEFFICIENT_A         21
+#define DCDC_INPUT_COEFFICIENT_B         292
+
 #define DCDC_POSSIBLE_HYSTERESIS         00 // mV
 
 #define DCDC_MAX_OUTPUT_VOLTAGE          20000 // mV
